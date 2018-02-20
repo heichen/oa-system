@@ -1,0 +1,347 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gxzn.forestoa.modules.workplan.dao.WorkplanMapper">
+	<resultMap id="BaseResultMap"
+		type="com.gxzn.forestoa.modules.workplan.entity.Workplan">
+		<id column="WORKPLAN_ID" jdbcType="BIGINT" property="workplanId" />
+		<result column="WORKPLAN_TITLE" jdbcType="VARCHAR" property="workplanTitle" />
+		<result column="WORKPLAN_CONTENT" jdbcType="VARCHAR" property="workplanContent" />
+		<result column="WORKPLAN_OWNER" jdbcType="BIGINT" property="workplanOwner" />
+		<result column="WORKPLAN_STARTTIME" jdbcType="TIMESTAMP"
+			property="workplanStarttime" />
+		<result column="WORKPLAN_ENDTIME" jdbcType="TIMESTAMP"
+			property="workplanEndtime" />
+		<result column="WORKPLAN_NOTICETIME" jdbcType="TIMESTAMP"
+			property="workplanNoticetime" />
+		<result column="DEL_FLAG" jdbcType="VARCHAR" property="delFlag" />
+		<result column="STATUS" jdbcType="VARCHAR" property="status" />
+		<result column="REMARKS1" jdbcType="VARCHAR" property="remarks1" />
+		<result column="REMARKS2" jdbcType="VARCHAR" property="remarks2" />
+		<result column="REMARKS3" jdbcType="VARCHAR" property="remarks3" />
+		<result column="REMARKS4" jdbcType="VARCHAR" property="remarks4" />
+		<association javaType="Users" property="user" column="USER_ID">
+			<id column="USER_ID" jdbcType="BIGINT" property="userId" />
+			<result column="USER_NUMBER" jdbcType="VARCHAR" property="userNumber" />
+			<result column="USER_NAME" jdbcType="VARCHAR" property="userName" />
+			<result column="SEX" jdbcType="VARCHAR" property="sex" />
+			<result column="PHONE" jdbcType="VARCHAR" property="phone" />
+			<result column="EMAIL" jdbcType="VARCHAR" property="email" />
+			<result column="LOGIN_NAME" jdbcType="VARCHAR" property="loginName" />
+			<result column="LOGIN_PASSWORD" jdbcType="VARCHAR" property="loginPassword" />
+			<result column="CREAT_TIME" jdbcType="TIMESTAMP" property="creatTime" />
+			<result column="USER_STATUS" jdbcType="VARCHAR" property="userStatus" />
+			<result column="DEL_FLAG" jdbcType="VARCHAR" property="delFlag" />
+			<result column="ORG_ID" jdbcType="BIGINT" property="orgId" />
+			<result column="ORG_STATUS" jdbcType="VARCHAR" property="orgStatus" />
+			<result column="USER_TYPE" jdbcType="VARCHAR" property="userType" />
+			<result column="ORG_ID1" jdbcType="BIGINT" property="orgId1" />
+			<result column="ROLE_ID1" jdbcType="BIGINT" property="roleId1" />
+			<result column="ORG_ID2" jdbcType="BIGINT" property="orgId2" />
+			<result column="ROLE_ID2" jdbcType="BIGINT" property="roleId2" />
+			<result column="ORG_ID3" jdbcType="BIGINT" property="orgId3" />
+			<result column="ROLE_ID3" jdbcType="BIGINT" property="roleId3" />
+			<result column="ORG_ID4" jdbcType="BIGINT" property="orgId4" />
+			<result column="ROLE_ID4" jdbcType="BIGINT" property="roleId4" />
+			<result column="ORG_ID5" jdbcType="BIGINT" property="orgId5" />
+			<result column="ROLE_ID5" jdbcType="BIGINT" property="roleId5" />
+			<result column="REMARKS" jdbcType="VARCHAR" property="remarks" />
+		</association>
+
+
+
+	</resultMap>
+
+	<sql id="workplan">
+		WORKPLAN_ID, WORKPLAN_TITLE, WORKPLAN_CONTENT, WORKPLAN_OWNER, WORKPLAN_STARTTIME,
+		WORKPLAN_ENDTIME, WORKPLAN_NOTICETIME, STATUS, REMARKS1, REMARKS2,
+		REMARKS3,
+		REMARKS4
+	</sql>
+	<sql id="user">
+		u.USER_ID,u.USER_NUMBER,u.USER_NAME,u.SEX,u.PHONE,u.EMAIL,u.LOGIN_NAME,u.LOGIN_PASSWORD,u.CREAT_TIME,
+		u.USER_STATUS,u.DEL_FLAG,u.ORG_ID,u.ORG_STATUS,u.ORG_ID1,u.USER_TYPE,u.ROLE_ID1,u.ORG_ID2,u.ROLE_ID2,
+		u.ORG_ID3,u.ROLE_ID3,u.ORG_ID4,u.ROLE_ID4,u.ORG_ID5,u.ROLE_ID5,u.REMARKS,u.orgs
+	</sql>
+
+	<!--查询所有工作计划 -->
+	<!-- <select id="selectAll" resultMap="BaseResultMap"> select <include refid="workplan"></include> 
+		from tb_workplan where DEL_FLAG = '0' and WORKPLAN_OWNER = #{workplanOwner,jdbcType=BIGINT} 
+		<if test="workplanTitle != ''"> AND WORKPLAN_TITLE like CONCAT(CONCAT('%',#{workplanTitle}),'%') 
+		</if> <if test="workplanStarttime != null"> and WORKPLAN_STARTTIME &gt; #{workplanStarttime} 
+		</if> <if test="workplanEndtime != null"> and WORKPLAN_ENDTIME &lt; #{workplanEndtime} 
+		</if> </select> -->
+
+
+	<!-- <select id="sssss" resultMap="BaseResultMap">
+	<![CDATA[
+	SELECT
+		tb_users.USER_NUMBER,tb_users.USER_NAME,tb_workplan.*
+	FROM
+		tb_workplan
+	LEFT JOIN 
+		tb_users on tb_workplan.WORKPLAN_OWNER = tb_users.USER_ID
+	WHERE
+		(date_format(WORKPLAN_STARTTIME,'%y-%m-%d') = date_format(NOW(), '%y-%m-%d')AND `STATUS` = '未开始') 
+	OR 
+		(date_format(WORKPLAN_ENDTIME,'%y-%m-%d') >= date_format(NOW(), '%y-%m-%d') AND `STATUS` <> '已结束') 
+	AND 
+		tb_workplan.DEL_FLAG='0'
+	]]>
+	</select>  -->
+
+
+
+
+
+	<select id="worlplanNotice" resultMap="BaseResultMap">
+		SELECT
+			tb_users.USER_NUMBER,tb_users.USER_NAME,tb_workplan.*
+		FROM
+			tb_workplan
+		LEFT JOIN 
+			tb_users on tb_workplan.WORKPLAN_OWNER = tb_users.USER_ID
+		WHERE
+				(date_format(WORKPLAN_STARTTIME,'%y-%m-%d') = date_format(NOW(), '%y-%m-%d') AND `STATUS` = '未开始') 
+			AND
+			 	tb_workplan.DEL_FLAG='0'
+	</select>
+
+
+
+	<select id="selectAllPlan" resultMap="BaseResultMap">
+		select * from tb_workplan where tb_workplan.DEL_FLAG = '0'
+	</select>
+
+
+	<select id="selectAll" resultMap="BaseResultMap">
+		select
+		<include refid="workplan"></include>
+		,
+		<include refid="user"></include>
+		from
+		tb_workplan
+		left join
+		tb_users u on WORKPLAN_OWNER=USER_ID
+		where
+		tb_workplan.DEL_FLAG = '0'
+		<if test="workplanTitle != ''">
+			AND u.USER_NAME like CONCAT(CONCAT('%',#{workplanTitle}),'%')
+		</if>
+		<if test="workplanStarttime != null">
+			and WORKPLAN_STARTTIME <![CDATA[ >= ]]> #{workplanStarttime}
+		</if>
+		<if test="workplanEndtime != null">
+			and WORKPLAN_ENDTIME <![CDATA[ <= ]]> #{workplanEndtime}
+		</if>
+		<if test="workplanOwner != ''">
+			AND WORKPLAN_OWNER IN (${workplanOwner})
+		</if>
+		ORDER BY WORKPLAN_ID DESC
+	</select>
+
+	<select id="selectWPNumber" resultMap="BaseResultMap">
+		select
+		<include refid="workplan"></include>
+		,
+		<include refid="user"></include>
+		from
+		tb_workplan
+		left join
+		tb_users u on WORKPLAN_OWNER=USER_ID
+		where
+		tb_workplan.DEL_FLAG = '0'
+		<if test="workplanOwner != ''">
+			AND WORKPLAN_OWNER IN (${workplanOwner})
+		</if>
+		<if test="status != ''">
+			AND STATUS = '未开始' OR STATUS = '进行中'
+		</if>
+	</select>
+
+	<!-- 根据工作计划Id查询单个工作计划 -->
+	<select id="selectByKey" resultMap="BaseResultMap"
+		parameterType="java.lang.Long">
+		select
+		<include refid="workplan"></include>
+		from
+		tb_workplan
+		where
+		WORKPLAN_ID=#{workplanId,jdbcType=BIGINT}
+	</select>
+	<!-- 根据工作计划标题查询工作计划 -->
+	<select id="selectByTitle" resultMap="BaseResultMap">
+		select
+		<include refid="workplan"></include>
+		from
+		tb_workplan
+		where
+		WORKPLAN_TITLE LIKE CONCAT(CONCAT('%', #{temp}), '%')
+	</select>
+
+	<!-- 根据工作计划状态查询工作计划 -->
+	<select id="selectByStatus" resultMap="BaseResultMap">
+		select
+		<include refid="workplan"></include>
+		from
+		tb_workplan
+		where
+		DEL_FLAG = '0' and STATUS = #{status}
+	</select>
+	<!-- 根据工作计划的发送状态查询发送失败工作计划 -->
+	<select id="selectBySendError" resultMap="BaseResultMap">
+		select
+		<include refid="workplan"></include>
+		from
+		tb_workplan
+		where
+		DEL_FLAG = '0' and REMARKS1 != '正确'
+	</select>
+
+	<!-- 根据工作计划Id进行物理删除 -->
+	<delete id="delete" parameterType="java.lang.Long">
+		delete
+		from tb_workplan
+		where
+		WORKPLAN_ID=#{workplanId,jdbcType=BIGINT}
+	</delete>
+
+	<!--根据工作计划Id进行逻辑删除 -->
+	<update id="delete2" parameterType="java.lang.Long">
+		update
+		tb_workplan
+		set
+		DEL_FLAG = "1"
+		where
+		WORKPLAN_ID=#{workplanId,jdbcType=BIGINT}
+	</update>
+
+	<!-- 工作计划编辑 -->
+	<update id="update" parameterType="com.gxzn.forestoa.modules.workplan.entity.Workplan">
+		update tb_workplan
+		<set>
+			<if test="workplanTitle != null">
+				WORKPLAN_TITLE = #{workplanTitle,jdbcType=VARCHAR},
+			</if>
+			<if test="workplanContent != null">
+				WORKPLAN_CONTENT = #{workplanContent,jdbcType=VARCHAR},
+			</if>
+			<if test="workplanOwner != null">
+				WORKPLAN_OWNER = #{workplanOwner,jdbcType=BIGINT},
+			</if>
+			<if test="workplanStarttime != null">
+				WORKPLAN_STARTTIME = #{workplanStarttime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="workplanEndtime != null">
+				WORKPLAN_ENDTIME = #{workplanEndtime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="workplanNoticetime != null">
+				WORKPLAN_NOTICETIME = #{workplanNoticetime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="delFlag != null">
+				DEL_FLAG = #{delFlag,jdbcType=VARCHAR},
+			</if>
+			<if test="status != null">
+				STATUS = #{status,jdbcType=VARCHAR},
+			</if>
+			<if test="remarks1 != null">
+				REMARKS1 = #{remarks1,jdbcType=VARCHAR},
+			</if>
+			<if test="remarks2 != null">
+				REMARKS2 = #{remarks2,jdbcType=VARCHAR},
+			</if>
+			<if test="remarks3 != null">
+				REMARKS3 = #{remarks3,jdbcType=VARCHAR},
+			</if>
+			<if test="remarks4 != null">
+				REMARKS4 = #{remarks4,jdbcType=VARCHAR},
+			</if>
+		</set>
+		where WORKPLAN_ID = #{workplanId,jdbcType=BIGINT}
+	</update>
+	<!--工作计划的添加 -->
+	<insert id="insert" parameterType="com.gxzn.forestoa.modules.workplan.entity.Workplan">
+		insert into tb_workplan
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="workplanId != null">
+				WORKPLAN_ID,
+			</if>
+			<if test="workplanTitle != null">
+				WORKPLAN_TITLE,
+			</if>
+			<if test="workplanContent != null">
+				WORKPLAN_CONTENT,
+			</if>
+			<if test="workplanOwner != null">
+				WORKPLAN_OWNER,
+			</if>
+			<if test="workplanStarttime != null">
+				WORKPLAN_STARTTIME,
+			</if>
+			<if test="workplanEndtime != null">
+				WORKPLAN_ENDTIME,
+			</if>
+			<if test="workplanNoticetime != null">
+				WORKPLAN_NOTICETIME,
+			</if>
+			<if test="delFlag != null">
+				DEL_FLAG,
+			</if>
+			<if test="status != null">
+				STATUS,
+			</if>
+			<if test="remarks1 != null">
+				REMARKS1,
+			</if>
+			<if test="remarks2 != null">
+				REMARKS2,
+			</if>
+			<if test="remarks3 != null">
+				REMARKS3,
+			</if>
+			<if test="remarks4 != null">
+				REMARKS4,
+			</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="workplanId != null">
+				#{workplanId,jdbcType=BIGINT},
+			</if>
+			<if test="workplanTitle != null">
+				#{workplanTitle,jdbcType=VARCHAR},
+			</if>
+			<if test="workplanContent != null">
+				#{workplanContent,jdbcType=VARCHAR},
+			</if>
+			<if test="workplanOwner != null">
+				#{workplanOwner,jdbcType=BIGINT},
+			</if>
+			<if test="workplanStarttime != null">
+				#{workplanStarttime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="workplanEndtime != null">
+				#{workplanEndtime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="workplanNoticetime != null">
+				#{workplanNoticetime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="delFlag != null">
+				#{delFlag,jdbcType=VARCHAR},
+			</if>
+			<if test="status != null">
+				#{status,jdbcType=VARCHAR},
+			</if>
+			<if test="remarks1 != null">
+				#{remarks1,jdbcType=VARCHAR},
+			</if>
+			<if test="remarks2 != null">
+				#{remarks2,jdbcType=VARCHAR},
+			</if>
+			<if test="remarks3 != null">
+				#{remarks3,jdbcType=VARCHAR},
+			</if>
+			<if test="remarks4 != null">
+				#{remarks4,jdbcType=VARCHAR},
+			</if>
+		</trim>
+	</insert>
+</mapper>

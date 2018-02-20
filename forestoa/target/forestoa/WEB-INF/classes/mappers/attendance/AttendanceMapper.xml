@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper
+	namespace="com.gxzn.forestoa.modules.attendance.dao.AttendanceMapper">
+	<resultMap id="BaseResultMap"
+		type="com.gxzn.forestoa.modules.attendance.entity.Attendance">
+		<id column="ATTENCE_ID" jdbcType="BIGINT" property="attenceId" />
+		<result column="USER_NUMBER" jdbcType="BIGINT" property="userNumber" />
+		<result column="ATTENCE_STARTTIME" jdbcType="TIMESTAMP"
+			property="attenceStarttime" />
+		<result column="ATTENCE_ENDTIME" jdbcType="TIMESTAMP" property="attenceEndtime" />
+		<result column="REMARKS1" jdbcType="VARCHAR" property="remarks1" />
+		<result column="REMARKS2" jdbcType="VARCHAR" property="remarks2" />
+		<result column="REMARKS3" jdbcType="VARCHAR" property="remarks3" />
+		<association javaType="Users" property="user" column="USER_ID">
+			<id column="USER_ID" jdbcType="BIGINT" property="userId" />
+			<result column="USER_NUMBER" jdbcType="VARCHAR" property="userNumber" />
+			<result column="USER_NAME" jdbcType="VARCHAR" property="userName" />
+			<result column="SEX" jdbcType="VARCHAR" property="sex" />
+			<result column="PHONE" jdbcType="VARCHAR" property="phone" />
+			<result column="EMAIL" jdbcType="VARCHAR" property="email" />
+			<result column="LOGIN_NAME" jdbcType="VARCHAR" property="loginName" />
+			<result column="LOGIN_PASSWORD" jdbcType="VARCHAR" property="loginPassword" />
+			<result column="CREAT_TIME" jdbcType="TIMESTAMP" property="creatTime" />
+			<result column="USER_STATUS" jdbcType="VARCHAR" property="userStatus" />
+			<result column="DEL_FLAG" jdbcType="VARCHAR" property="delFlag" />
+			<result column="ORG_ID" jdbcType="BIGINT" property="orgId" />
+			<result column="ORG_STATUS" jdbcType="VARCHAR" property="orgStatus" />
+			<result column="USER_TYPE" jdbcType="VARCHAR" property="userType" />
+			<result column="ORG_ID1" jdbcType="BIGINT" property="orgId1" />
+			<result column="ROLE_ID1" jdbcType="BIGINT" property="roleId1" />
+			<result column="ORG_ID2" jdbcType="BIGINT" property="orgId2" />
+			<result column="ROLE_ID2" jdbcType="BIGINT" property="roleId2" />
+			<result column="ORG_ID3" jdbcType="BIGINT" property="orgId3" />
+			<result column="ROLE_ID3" jdbcType="BIGINT" property="roleId3" />
+			<result column="ORG_ID4" jdbcType="BIGINT" property="orgId4" />
+			<result column="ROLE_ID4" jdbcType="BIGINT" property="roleId4" />
+			<result column="ORG_ID5" jdbcType="BIGINT" property="orgId5" />
+			<result column="ROLE_ID5" jdbcType="BIGINT" property="roleId5" />
+			<result column="REMARKS" jdbcType="VARCHAR" property="remarks" />
+		</association>
+	</resultMap>
+
+	<sql id="StatisticsCheck">
+		ATTENCE_ID, ATTENCE_STARTTIME, ATTENCE_ENDTIME, REMARKS1, REMARKS2,
+		REMARKS3
+	</sql>
+	<sql id="user">
+		u.USER_ID,u.USER_NUMBER,u.USER_NAME,u.SEX,u.PHONE,u.EMAIL,u.LOGIN_NAME,u.LOGIN_PASSWORD,u.CREAT_TIME,
+		u.USER_STATUS,u.DEL_FLAG,u.ORG_ID,u.ORG_STATUS,u.ORG_ID1,u.USER_TYPE,u.ROLE_ID1,u.ORG_ID2,u.ROLE_ID2,
+		u.ORG_ID3,u.ROLE_ID3,u.ORG_ID4,u.ROLE_ID4,u.ORG_ID5,u.ROLE_ID5,u.REMARKS
+	</sql>
+
+
+
+	<!--根据警号查询考勤记录 -->
+	<select id="selectByUnumber" resultMap="BaseResultMap">
+		select
+			*
+		from
+			tb_attence ta
+		where
+			ta.USER_NUMBER=#{userNumber,jdbcType=BIGINT}
+		and
+			DATE_FORMAT(ATTENCE_STARTTIME, '%Y-%m-%d') = DATE_FORMAT(#{attenceStarttime}, '%Y-%m-%d') 
+	</select>
+	<!--查询所有考勤记录 -->
+	<select id="selectAll" resultMap="BaseResultMap">
+		select
+		<include refid="StatisticsCheck"></include>
+		,
+		u.USER_NAME,u.USER_NUMBER
+		from
+		tb_attence ta
+		left join tb_users u on ta.USER_NUMBER=u.USER_NUMBER
+		where
+		1+1
+		<if test="userName != null">
+			and u.USER_NAME LIKE CONCAT('%',#{userName,jdbcType=VARCHAR},'%')
+		</if>
+		<if test="orgId != 0">
+			and u.ORG_ID1 =#{orgId,jdbcType=BIGINT}
+		</if>
+		<if test="attenceStarttime != null">    
+         <![CDATA[and DATE_FORMAT(ATTENCE_STARTTIME, '%Y-%m-%d') >= DATE_FORMAT(#{attenceStarttime}, '%Y-%m-%d')]]>
+		</if>
+		<if test="attenceEndtime != null">
+        <![CDATA[and DATE_FORMAT(ATTENCE_ENDTIME, '%Y-%m-%d') <= DATE_FORMAT(#{attenceEndtime}, '%Y-%m-%d')]]>
+		</if>
+
+
+
+		<if test="workplanOwner != ''">
+			AND u.USER_ID IN (${workplanOwner})
+		</if>
+		ORDER BY ATTENCE_ID DESC
+
+	</select>
+
+	<!--插入考勤记录 -->
+	<insert id="insert"
+		parameterType="com.gxzn.forestoa.modules.attendance.entity.Attendance">
+		insert into tb_attence
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="attenceId != null">
+				ATTENCE_ID,
+			</if>
+			<if test="userNumber != null">
+				USER_NUMBER,
+			</if>
+			<if test="attenceStarttime != null">
+				ATTENCE_STARTTIME,
+			</if>
+			<!-- <if test="attenceEndtime != null">
+				ATTENCE_ENDTIME,
+			</if> -->
+			<if test="remarks1 != null">
+				REMARKS1,
+			</if>
+			<if test="remarks2 != null">
+				REMARKS2,
+			</if>
+			<if test="remarks3 != null">
+				REMARKS3,
+			</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="attenceId != null">
+				#{attenceId,jdbcType=BIGINT},
+			</if>
+			<if test="userNumber != null">
+				#{userNumber,jdbcType=BIGINT},
+			</if>
+			<if test="attenceStarttime != null">
+				#{attenceStarttime,jdbcType=TIMESTAMP},
+			</if>
+			<!-- <if test="attenceEndtime != null">
+				#{attenceEndtime,jdbcType=TIMESTAMP},
+			</if> -->
+			<if test="remarks1 != null">
+				#{remarks1,jdbcType=VARCHAR},
+			</if>
+			<if test="remarks2 != null">
+				#{remarks2,jdbcType=VARCHAR},
+			</if>
+			<if test="remarks3 != null">
+				#{remarks3,jdbcType=VARCHAR},
+			</if>
+		</trim>
+	</insert>
+
+
+	<!--根据警号更新考勤记录 -->
+
+	<update id="update"
+		parameterType="com.gxzn.forestoa.modules.attendance.entity.Attendance">
+		update tb_attence
+		<set>
+			<!-- <if test="attenceStarttime != null">
+				ATTENCE_STARTTIME = #{attenceStarttime,jdbcType=TIMESTAMP},
+			</if> -->
+			<if test="attenceEndtime != null">
+				ATTENCE_ENDTIME = #{attenceEndtime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="remarks1 != null">
+				REMARKS1 = #{remarks1,jdbcType=VARCHAR},
+			</if>
+			<if test="remarks2 != null">
+				REMARKS2 = #{remarks2,jdbcType=VARCHAR},
+			</if>
+			<if test="remarks3 != null">
+				REMARKS3 = #{remarks3,jdbcType=VARCHAR},
+			</if>
+		</set>
+		where USER_NUMBER = #{userNumber,jdbcType=BIGINT}
+	</update>
+
+</mapper>

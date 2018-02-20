@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper
+	namespace="com.gxzn.forestoa.modules.document.dao.DocumentReceiveTaskMapper">
+	<sql id="documentReceive">
+		ri.RECEIVE_ID as rid, ri.NUMBER, ri.COMPANY, ri.TITLE,
+		ri.FILE, ri.POFILE,
+		ri.PAGES, ri.ARCHIVAL_PERIOD,
+		date_format(ri.CREATE_TIME,'%Y-%m-%d %H:%i:%S')AS CREATE_TIME,
+		ri.RECEIVE_STATUS,
+		ri.DEL_FLAG
+	</sql>
+	<sql id="documentReceiveTask">
+		rti.TASK_ID, rti.RECEIVE_ID , rti.START_PERSON_ID,
+		rti.END_PERSON_ID,rti.START_NODE_ID,rti.END_NODE_ID,rti.START_TIME,
+		rti.END_TIME,rti.TASK_STATUS,rti.OPINION,rti.REMARKS,rti.RTX_MSG,rti.DEL_FLAG
+	</sql>
+	<!-- 保存收文任务 -->
+	<insert id="saveReceiveTask"
+		parameterType="com.gxzn.forestoa.modules.document.entity.DocumentReceiveTask"
+		useGeneratedKeys="true" keyProperty="taskId">
+		insert into tb_document_receive_task
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="taskId != null">
+				TASK_ID,
+			</if>
+			<if test="receiveId != null">
+				RECEIVE_ID,
+			</if>
+			<if test="startPersonId != null">
+				START_PERSON_ID,
+			</if>
+			<if test="endPersonId != null">
+				END_PERSON_ID,
+			</if>
+			<if test="startNodeId != null">
+				START_NODE_ID,
+			</if>
+			<if test="endNodeId != null">
+				END_NODE_ID,
+			</if>
+			<if test="startTime != null">
+				START_TIME,
+			</if>
+			<if test="endTime != null">
+				END_TIME,
+			</if>
+			<if test="taskStatus != null">
+				TASK_STATUS,
+			</if>
+			<if test="opinion != null">
+				OPINION,
+			</if>
+			<if test="remarks != null">
+				REMARKS,
+			</if>
+			<if test="rtxMsg != null">
+				RTX_MSG,
+			</if>
+			<if test="delFlag != null">
+				DEL_FLAG,
+			</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="taskId != null">
+				#{taskId,jdbcType=BIGINT},
+			</if>
+			<if test="receiveId != null">
+				#{receiveId,jdbcType=BIGINT},
+			</if>
+			<if test="startPersonId != null">
+				#{startPersonId,jdbcType=BIGINT},
+			</if>
+			<if test="endPersonId != null">
+				#{endPersonId,jdbcType=BIGINT},
+			</if>
+			<if test="startNodeId != null">
+				#{startNodeId,jdbcType=INTEGER},
+			</if>
+			<if test="endNodeId != null">
+				#{endNodeId,jdbcType=INTEGER},
+			</if>
+			<if test="startTime != null">
+				#{startTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="endTime != null">
+				#{endTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="taskStatus != null">
+				#{taskStatus,jdbcType=VARCHAR},
+			</if>
+			<if test="opinion != null">
+				#{opinion,jdbcType=VARCHAR},
+			</if>
+			<if test="remarks != null">
+				#{remarks,jdbcType=LONGVARCHAR},
+			</if>
+			<if test="rtxMsg != null">
+				#{rtxMsg,jdbcType=VARCHAR},
+			</if>
+			<if test="delFlag != null">
+				#{delFlag,jdbcType=VARCHAR},
+			</if>
+		</trim>
+	</insert>
+	<!-- 通过收文人员id得到收文待办任务 -->
+	<select id="getReceiveTask" parameterType="java.lang.Long"
+		resultType="java.util.Map">
+		select
+		<include refid="documentReceiveTask"></include>
+		,
+		<include refid="documentReceive"></include>
+		FROM tb_document_receive_task rti LEFT JOIN tb_document_receive ri ON
+		rti.RECEIVE_ID=ri.RECEIVE_ID
+		WHERE rti.TASK_STATUS='0' and
+		ri.DEL_FLAG='0' and rti.DEL_FLAG='0' and
+		rti.END_PERSON_ID=#{endPersonId}
+	</select>
+	<!-- 根据收文任务id获取收文详细信息 -->
+	<select id="getReceiveByTaskId" parameterType="java.lang.Long"
+		resultType="java.util.Map">
+		select
+		<include refid="documentReceive"></include>
+		,
+		<include refid="documentReceiveTask"></include>
+		from tb_document_receive ri LEFT JOIN tb_document_receive_task rti ON
+		rti.RECEIVE_ID=ri.RECEIVE_ID
+		where ri.DEL_FLAG='0' and rti.DEL_FLAG='0'
+		and rti.TASK_ID =
+		#{taskId,jdbcType=BIGINT}
+	</select>
+	<!-- 更新收文任务为已办 -->
+	<update id="updateCompleteTask"
+		parameterType="com.gxzn.forestoa.modules.document.entity.DocumentReceiveTask">
+		UPDATE
+		tb_document_receive_task rti
+		SET
+		rti.TASK_STATUS =
+		'1' ,
+		rti.END_TIME=#{endTime,jdbcType=TIMESTAMP},rti.REMARKS=#{remarks,jdbcType=VARCHAR}
+		WHERE rti.TASK_ID =
+		#{taskId,jdbcType=BIGINT}
+	</update>
+	<!-- 更新收文任务为退回 -->
+	<update id="updateReturnTask"
+		parameterType="com.gxzn.forestoa.modules.document.entity.DocumentReceiveTask">
+		UPDATE
+		tb_document_receive_task rti
+		SET
+		rti.TASK_STATUS =
+		'2' , rti.END_TIME= #{endTime}
+		WHERE rti.TASK_ID =
+		#{taskId,jdbcType=BIGINT}
+	</update>
+	<!-- 通过收文id得到开始人员id -->
+	<select id="getStartPersonId" parameterType="java.lang.Long"
+		resultType="com.gxzn.forestoa.modules.document.entity.DocumentReceiveTask">
+		SELECT min(TASK_ID) as TASK_ID,START_PERSON_ID FROM
+		tb_document_receive_task
+		WHERE RECEIVE_ID=#{receiveId,jdbcType=BIGINT}
+	</select>
+	<!-- 删除收文任务 -->
+	<update id="deleteDocumentReceiveTask" parameterType="java.lang.Long">
+		UPDATE
+		tb_document_receive_task rti
+		SET rti.DEL_FLAG = '1'
+		WHERE rti.RECEIVE_ID =
+		#{receiveId,jdbcType=BIGINT}
+	</update>
+	<!--查询收文调用RTX提醒失败的信息 -->
+	<select id="selestErrorReceive" resultType="java.util.Map">
+		SELECT
+		<include refid="documentReceiveTask"></include>
+		FROM
+		tb_document_receive_task rti
+		WHERE
+		rti.RTX_MSG != '正确'
+	</select>
+	<!--更新收文RTX提醒标志位 -->
+	<update id="updateRTXMSG" parameterType="java.util.Map">
+		UPDATE
+		tb_document_receive_task rti
+		SET
+		rti.RTX_MSG =
+		#{RTX_MSG,jdbcType=VARCHAR}
+		WHERE rti.TASK_ID =
+		#{TASK_ID,jdbcType=BIGINT}
+	</update>
+	<!-- 查询所有当前id任务状态 -->
+	<select id="getCompleteStatus" parameterType="java.lang.Long"
+		resultType="java.lang.Long">
+		SELECT count(*) FROM tb_document_receive_task WHERE TASK_STATUS='0'
+		AND RECEIVE_ID=#{receiveId,jdbcType=BIGINT} 
+	</select>
+</mapper> 

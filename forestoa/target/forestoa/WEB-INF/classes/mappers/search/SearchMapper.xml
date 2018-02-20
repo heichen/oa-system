@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gxzn.forestoa.modules.search.dao.SearchMapper">
+
+	<select id="myDocBfByPage" resultType="java.util.Map"
+		parameterType="java.util.Map">
+		SELECT ID,NUMBER,TITLE,DATE_FORMAT(CREATE_TIME, '%Y-%m-%d %H:%i:%S')
+		AS
+		CREATE_TIME,isEnd,O_ID,O_NAME,TASK_ID,TASK_STATUS,START_PERSON_ID,END_PERSON_ID,DEL_FLAG,mark
+		FROM doc_fb_view
+		WHERE DEL_FLAG=0
+		<if test="q_title != ''">
+			AND TITLE like CONCAT(CONCAT('%',#{q_title}),'%')
+		</if>
+		<if test="q_number != ''">
+			AND NUMBER like CONCAT(CONCAT('%',#{q_number}),'%')
+		</if>
+		<if test="q_status != ''">
+			AND TASK_STATUS=#{q_status}
+		</if>
+		<if test="logmin != ''">
+			AND CREATE_TIME &gt;=#{logmin}
+		</if>
+		<if test="logmax != ''">
+			AND CREATE_TIME &lt;=#{logmax}
+		</if>
+		<if test="q_mark != ''">
+			AND mark=#{q_mark}
+		</if>
+		<if test="q_uId != ''">
+			AND END_PERSON_ID IN (${q_uId})
+		</if>
+		
+		GROUP BY ID,mark
+	</select>
+
+	<select id="myDocBfBackByPage" resultType="java.util.Map"
+		parameterType="java.util.Map">
+		SELECT
+		tu.USER_ID,tu.USER_NUMBER,tu.USER_NAME,dsf.CREATE_TIME,tor.O_NAME,count(dsf.ID) BACK_COUNT
+		FROM doc_fb_view dsf
+		LEFT JOIN tb_users tu ON dsf.END_PERSON_ID=tu.USER_ID
+		LEFT JOIN tb_org tor ON tu.ORG_ID1=tor.O_ID
+		WHERE dsf.isBack=1 AND dsf.DEL_FLAG=0
+		<if test="userName != ''">
+			AND tu.USER_NAME = #{userName}
+		</if>
+		<if test="logmin != ''">
+			AND CREATE_TIME &gt;=#{logmin}
+		</if>
+		<if test="logmax != ''">
+			AND CREATE_TIME &lt;=#{logmax}
+		</if>
+		<if test="q_oId != ''">
+			AND tor.O_ID = #{q_oId}
+		</if>
+		<if test="q_uId != ''">
+			AND tu.USER_ID IN (${q_uId})
+		</if>
+		GROUP BY tu.USER_ID
+	</select>
+	
+	<select id="myDocBfBackDatailByPage" resultType="java.util.Map"
+		parameterType="java.util.Map">
+		SELECT ID,NUMBER,TITLE,DATE_FORMAT(CREATE_TIME, '%Y-%m-%d %H:%i:%S')
+		AS
+		CREATE_TIME,isEnd,O_ID,O_NAME,TASK_ID,TASK_STATUS,START_PERSON_ID,END_PERSON_ID,DEL_FLAG,mark
+		FROM doc_fb_view dfv 
+		WHERE dfv.isBack=1 AND dfv.DEL_FLAG=0
+		AND dfv.END_PERSON_ID=#{uId}
+		<if test="logmin != ''">
+			AND CREATE_TIME &gt;=#{logmin}
+		</if>
+		<if test="logmax != ''">
+			AND CREATE_TIME &lt;=#{logmax}
+		</if>
+	</select>
+</mapper>

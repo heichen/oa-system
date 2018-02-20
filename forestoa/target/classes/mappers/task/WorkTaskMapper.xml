@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gxzn.forestoa.modules.task.dao.WorkTaskMapper">
+
+
+	<select id="getDocReceiveTaskNum" resultType="int"
+		parameterType="java.util.Map">
+		SELECT count(*) FROM tb_document_receive_task WHERE
+		END_PERSON_ID IN (${userIds}) AND TASK_STATUS=0
+	</select>
+
+	<select id="getDocSendTaskNum" resultType="int" parameterType="java.util.Map">
+		SELECT count(*) FROM tb_document_send_task WHERE
+		END_PERSON_ID IN (${userIds}) AND TASK_STATUS=0
+	</select>
+
+	<select id="getBfReceiveTaskNum" resultType="int" parameterType="java.util.Map">
+		SELECT count(*) FROM tb_briefing_receive_task WHERE
+		END_PERSON_ID IN (${userIds}) AND TASK_STATUS=0
+	</select>
+
+	<select id="getBfSendTaskNum" resultType="int" parameterType="java.util.Map">
+		SELECT count(*) FROM tb_briefing_send_task WHERE
+		END_PERSON_ID IN (${userIds}) AND TASK_STATUS=0
+	</select>
+
+	<select id="getDocReceive" resultType="java.util.Map"
+		parameterType="java.util.Map">
+		SELECT tdr.TITLE,tor.O_NAME,
+		DATE_FORMAT(tdrt.START_TIME, '%Y-%m-%d %H:%i:%S') AS START_TIME,tdrt.TASK_ID
+		FROM
+		tb_document_receive_task tdrt
+		LEFT JOIN tb_document_receive tdr ON
+		tdrt.RECEIVE_ID=tdr.RECEIVE_ID
+		LEFT JOIN tb_org tor ON
+		tdr.COMPANY=tor.O_ID
+		WHERE tdrt.END_PERSON_ID IN (${userIds}) AND
+		tdrt.TASK_STATUS=0
+	</select>
+
+	<select id="getDocSend" resultType="java.util.Map"
+		parameterType="java.util.Map">
+		SELECT tds.TITLE,tor.O_NAME,
+		DATE_FORMAT(tdst.START_TIME, '%Y-%m-%d %H:%i:%S') AS START_TIME,tdst.TASK_ID
+		FROM
+		tb_document_send_task tdst LEFT JOIN tb_document_send tds ON
+		tdst.SEND_ID=tds.SEND_ID
+		LEFT JOIN tb_org tor ON
+		tds.HOST_DEPARTMENT=tor.O_ID
+		WHERE tdst.END_PERSON_ID IN (${userIds}) AND
+		tdst.TASK_STATUS=0
+	</select>
+
+
+	<select id="getBfSend" resultType="java.util.Map" parameterType="java.util.Map">
+		SELECT tbs.TITLE,tor.O_NAME,
+		DATE_FORMAT(tbst.START_TIME, '%Y-%m-%d %H:%i:%S') AS START_TIME,tbst.TASK_ID
+		FROM tb_briefing_send_task
+		tbst LEFT JOIN tb_briefing_send tbs ON
+		tbst.SEND_ID=tbs.SEND_ID
+		LEFT
+		JOIN tb_org tor ON tbs.HOST_DEPARTMENT=tor.O_ID
+		WHERE
+		tbst.END_PERSON_ID IN (${userIds}) AND tbst.TASK_STATUS=0
+	</select>
+
+	<select id="getBfReceive" resultType="java.util.Map"
+		parameterType="java.util.Map">
+		SELECT tbr.TITLE,tor.O_NAME,
+		DATE_FORMAT(tbrt.START_TIME, '%Y-%m-%d %H:%i:%S') AS START_TIME,tbrt.TASK_ID
+		FROM tb_briefing_receive_task tbrt LEFT JOIN tb_briefing_receive tbr ON
+		tbrt.RECEIVE_ID = tbr.RECEIVE_ID
+		LEFT JOIN tb_org tor ON tbr.COMPANY=tor.O_ID
+		WHERE tbrt.END_PERSON_ID IN (${userIds}) AND tbrt.TASK_STATUS=0
+	</select>
+
+	<select id="findMyDocBfByPage" resultType="java.util.Map"
+		parameterType="java.util.Map">
+		SELECT ID,NUMBER,TITLE,DATE_FORMAT(CREATE_TIME, '%Y-%m-%d %H:%i:%S') AS CREATE_TIME,O_NAME,TASK_ID,TASK_STATUS,START_PERSON_ID,END_PERSON_ID,DEL_FLAG,mark
+		FROM doc_fb_view
+		WHERE DEL_FLAG=0
+		<if test="q_title != ''">
+       		 AND TITLE like CONCAT(CONCAT('%',#{q_title}),'%') 
+      	</if> 
+      	<if test="q_number != ''">
+       		 AND NUMBER like CONCAT(CONCAT('%',#{q_number}),'%') 
+      	</if> 
+      	<if test="q_status != ''">
+       		 AND TASK_STATUS=#{q_status}
+      	</if>
+      	<if test="logmin != ''">
+      		AND CREATE_TIME &gt;=#{logmin}
+      	</if>
+      	<if test="logmax != ''">
+      		AND CREATE_TIME &lt;=#{logmax}
+      	</if>
+      	 <if test="userId != ''">
+      		AND END_PERSON_ID=#{userId}
+      	</if>
+      	<if test="q_mark != ''">
+      		AND mark=#{q_mark}
+      	</if>
+	</select>
+	
+	<select id="findMyDocBfByAllPage" resultType="java.util.Map"
+		parameterType="java.util.Map">
+		SELECT ID,NUMBER,TITLE,DATE_FORMAT(CREATE_TIME, '%Y-%m-%d %H:%i:%S') AS CREATE_TIME,isEnd,O_ID,O_NAME,TASK_ID,TASK_STATUS,START_PERSON_ID,END_PERSON_ID,DEL_FLAG,mark
+		FROM doc_fb_view
+		WHERE DEL_FLAG=0
+		<if test="q_title != ''">
+       		 AND TITLE like CONCAT(CONCAT('%',#{q_title}),'%') 
+      	</if> 
+      	<if test="q_number != ''">
+       		 AND NUMBER like CONCAT(CONCAT('%',#{q_number}),'%') 
+      	</if> 
+      	<if test="q_status != ''">
+       		 AND TASK_STATUS=#{q_status}
+      	</if>
+      	<if test="logmin != ''">
+      		AND CREATE_TIME &gt;=#{logmin}
+      	</if>
+      	<if test="logmax != ''">
+      		AND CREATE_TIME &lt;=#{logmax}
+      	</if>
+      	<if test="q_mark != ''">
+      		AND mark=#{q_mark}
+      	</if>
+      	 <if test="q_oId != ''">
+      		AND O_ID=#{q_oId}
+      	</if>
+      	GROUP BY ID,mark
+	</select>
+</mapper>

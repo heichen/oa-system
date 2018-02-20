@@ -1,0 +1,104 @@
+@charset "utf-8";
+
+/* 你自己的样式 */
+
+.radio-box {
+	padding-left: 0 !important;
+}
+
+.handle {/*已办理*/
+	border: 1px solid #ccc !important;
+	color: #ccc !important;
+}
+
+.handle:hover {
+	border: 1px solid #ccc !important;
+	color: #ccc !important;
+}
+
+.returns {/*回退*/
+	border: 2px solid #FF0000 !important;
+	color: #FF0000 !important;
+}
+
+.currents {/*当前节点*/
+	border: 2px solid green !important;
+	color: green !important;
+}
+
+
+.bordered-link {
+	/* width: 110px;
+	height: 70px;
+	text-align: center;
+	display: inline-block;
+	padding: 8px;
+	border: 3px solid #ccc;
+	border-radius: 6px;
+	box-shadow: 0 2px 1px rgba(0, 0, 0, 0.2);
+	text-decoration: none;
+	font-size: 14px;
+	text-transform: uppercase;
+	color: #222;
+	margin-left: 10px; */
+	margin: 12px auto;
+	width: 115px;
+	height: 60px;
+	background: white;
+	border-radius: 10px;
+	-webkit-box-shadow: 0px 0px 8px rgba(0, 0, 0, 0.3);
+	-moz-box-shadow: 0px 0px 8px rgba(0, 0, 0, 0.3);
+	box-shadow: 0px 0px 8px rgba(0, 0, 0, 0.3);
+	z-index: 90;
+	text-align:center;
+}
+
+.bordered-link:hover {
+	border-color: #FDD68B;
+}
+
+.bordered-link:active {
+	border-color: #FEE8BD;
+}
+
+.bordered-link span {
+	display: block;
+	line-height:60px;
+	color:#666666;
+}
+
+/*.cl1 {
+	border: 1px solid #96c2f1;
+	background: #eff7ff
+}
+
+.cl2 {
+	border: 1px solid #9bdf70;
+	background: #f0fbeb
+}
+
+.cl3 {
+	border: 1px solid #bbe1f1;
+	background: #eefaff
+}
+  */
+.fs1 {
+	font-size: 18px;
+	line-height:80px;
+}
+
+.fs2 {
+	font-size: 8px;
+}
+
+.processBtn{
+	cursor: pointer;
+}
+/*办理意见-icon*/
+.ui-icon-pos{
+	position: absolute;
+	right: 30px;
+	bottom: 0;
+	cursor: pointer;
+	font-size: 16px;
+}

@@ -1,0 +1,243 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gxzn.forestoa.modules.notice.dao.NoticeMapper">
+  <resultMap id="BaseResultMap" type="com.gxzn.forestoa.modules.notice.entity.Notice">
+    <id column="NOTICE_ID" jdbcType="BIGINT" property="noticeId" />
+    <result column="NOTICE_TITLE" jdbcType="VARCHAR" property="noticeTitle" />
+    <result column="NOTICE_CONTENT" jdbcType="VARCHAR" property="noticeContent" />
+    <result column="NOTICE_TYPE" jdbcType="VARCHAR" property="noticeType" />
+    <result column="NOTICE_CREATETIME" jdbcType="TIMESTAMP" property="noticeCreatetime" />
+    <result column="NOTICE_CREATER" jdbcType="BIGINT" property="noticeCreater" />
+    <result column="NOTICE_RECEIVER" jdbcType="VARCHAR" property="noticeReceiver" />
+    <result column="FORUSERTYPE" jdbcType="INTEGER" property="forusertype" />
+    <result column="FORONLINEUSERS" jdbcType="INTEGER" property="foronlineusers" />
+    <result column="NEEDREADED" jdbcType="INTEGER" property="needreaded" />
+    <result column="DEL_FLAG" jdbcType="VARCHAR" property="delFlag" />
+    <result column="REMARKS2" jdbcType="VARCHAR" property="remarks2" />
+    <result column="REMARKS3" jdbcType="VARCHAR" property="remarks3" />
+    <association javaType="Users" property="creater" column="USER_ID">
+			<id column="USER_ID" jdbcType="BIGINT" property="userId" />
+			<result column="USER_NUMBER" jdbcType="VARCHAR" property="userNumber" />
+			<result column="USER_NAME" jdbcType="VARCHAR" property="userName" />
+			<result column="SEX" jdbcType="VARCHAR" property="sex" />
+			<result column="PHONE" jdbcType="VARCHAR" property="phone" />
+			<result column="EMAIL" jdbcType="VARCHAR" property="email" />
+			<result column="LOGIN_NAME" jdbcType="VARCHAR" property="loginName" />
+			<result column="LOGIN_PASSWORD" jdbcType="VARCHAR" property="loginPassword" />
+			<result column="CREAT_TIME" jdbcType="TIMESTAMP" property="creatTime" />
+			<result column="USER_STATUS" jdbcType="VARCHAR" property="userStatus" />
+			<result column="DEL_FLAG" jdbcType="VARCHAR" property="delFlag" />
+			<result column="ORG_ID" jdbcType="BIGINT" property="orgId" />
+			<result column="ORG_STATUS" jdbcType="VARCHAR" property="orgStatus" />
+			<result column="USER_TYPE" jdbcType="VARCHAR" property="userType" />
+			<result column="ORG_ID1" jdbcType="BIGINT" property="orgId1" />
+			<result column="ROLE_ID1" jdbcType="BIGINT" property="roleId1" />
+			<result column="ORG_ID2" jdbcType="BIGINT" property="orgId2" />
+			<result column="ROLE_ID2" jdbcType="BIGINT" property="roleId2" />
+			<result column="ORG_ID3" jdbcType="BIGINT" property="orgId3" />
+			<result column="ROLE_ID3" jdbcType="BIGINT" property="roleId3" />
+			<result column="ORG_ID4" jdbcType="BIGINT" property="orgId4" />
+			<result column="ROLE_ID4" jdbcType="BIGINT" property="roleId4" />
+			<result column="ORG_ID5" jdbcType="BIGINT" property="orgId5" />
+			<result column="ROLE_ID5" jdbcType="BIGINT" property="roleId5" />
+			<result column="REMARKS" jdbcType="VARCHAR" property="remarks" />
+		</association>
+  </resultMap>
+  
+  <sql id="notice">
+    NOTICE_ID, NOTICE_TITLE, NOTICE_CONTENT, NOTICE_TYPE, NOTICE_CREATETIME, NOTICE_CREATER, 
+    NOTICE_RECEIVER, FORUSERTYPE, FORONLINEUSERS, NEEDREADED, DEL_FLAG, REMARKS2, REMARKS3
+  </sql>
+  <!--查询所有通知通告 -->
+  <select id="selectAll" resultMap="BaseResultMap">
+  	select
+  		*
+  	from
+  		tb_notice
+  	WHERE
+		1=1
+		<!-- <if test="userId != 'admin'">
+			and tun.USER_ID=#{userId,jdbcType=BIGINT}
+		</if> -->
+		<!-- and tun.USER_ID=#{userId,jdbcType=BIGINT} -->
+		<if test="noticeTitle != ''">
+		 and NOTICE_TITLE LIKE CONCAT('%',#{noticeTitle,jdbcType=VARCHAR},'%')
+		</if>
+		ORDER BY NOTICE_ID DESC 	
+  </select>
+  <!-- 根据通知通告Id查询单个通知通告 -->
+  <select id="selectByKey" resultMap="BaseResultMap" parameterType="java.lang.Long">
+  	select
+  		<include refid="notice"></include>
+  	from
+  		tb_notice
+  	where
+  	 	NOTICE_ID=#{noticeId,jdbcType=BIGINT}
+  </select>
+  <!-- 根据通知通告标题查询通知通告 -->
+  <select id="selectByTitle" resultMap="BaseResultMap">
+  	select
+  		<include refid="notice"></include>
+  	from
+  		tb_notice	
+  	where
+  	 	NOTICE_TITLE LIKE CONCAT(CONCAT('%', #{temp}), '%')
+  </select>
+  <!-- 查询发送失败的提醒 -->
+  <select id="selectSendError" resultMap="BaseResultMap">
+  	select
+  		<include refid="notice"></include>
+  	from
+  		tb_notice	
+  	where
+  	 	REMARKS3 != '正确'
+  </select>
+  
+  <!-- 根据通知通告Id进行物理删除 -->
+  <delete id="delete" parameterType="java.lang.Long">
+		delete 
+			from tb_notice
+		where 
+			NOTICE_ID=#{noticeId,jdbcType=BIGINT}
+	</delete>
+	
+  <!--根据通知通告Id进行逻辑删除-->
+	<update id="delete2" parameterType="java.lang.Long">
+		update  
+			tb_notice
+		set
+			DEL_FLAG = "1"
+		where 
+			NOTICE_ID=#{noticeId,jdbcType=BIGINT}
+	</update>
+  
+  <!-- 通知通告编辑 -->
+  	<update id="update" parameterType="com.gxzn.forestoa.modules.notice.entity.Notice">
+    update tb_notice
+    <set>
+      <if test="noticeTitle != null">
+        NOTICE_TITLE = #{noticeTitle,jdbcType=VARCHAR},
+      </if>
+      <if test="noticeContent != null">
+        NOTICE_CONTENT = #{noticeContent,jdbcType=VARCHAR},
+      </if>
+      <if test="noticeType != null">
+        NOTICE_TYPE = #{noticeType,jdbcType=VARCHAR},
+      </if>
+      <if test="noticeCreatetime != null">
+        NOTICE_CREATETIME = #{noticeCreatetime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="noticeCreater != null">
+        NOTICE_CREATER = #{noticeCreater,jdbcType=BIGINT},
+      </if>
+      <if test="noticeReceiver != null">
+        NOTICE_RECEIVER = #{noticeReceiver,jdbcType=VARCHAR},
+      </if>
+      <if test="forusertype != null">
+        FORUSERTYPE = #{forusertype,jdbcType=INTEGER},
+      </if>
+      <if test="foronlineusers != null">
+        FORONLINEUSERS = #{foronlineusers,jdbcType=INTEGER},
+      </if>
+      <if test="needreaded != null">
+        NEEDREADED = #{needreaded,jdbcType=INTEGER},
+      </if>
+      <if test="delFlag != null">
+        DEL_FLAG = #{delFlag,jdbcType=VARCHAR},
+      </if>
+      <if test="remarks2 != null">
+        REMARKS2 = #{remarks2,jdbcType=VARCHAR},
+      </if>
+      <if test="remarks3 != null">
+        REMARKS3 = #{remarks3,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where NOTICE_ID = #{noticeId,jdbcType=INTEGER}
+  </update>
+  <!--通知通告的添加  -->
+  <insert id="insert" parameterType="com.gxzn.forestoa.modules.notice.entity.Notice" useGeneratedKeys="true" keyProperty="noticeId">
+    insert into tb_notice
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="noticeId != null">
+        NOTICE_ID,
+      </if>
+      <if test="noticeTitle != null">
+        NOTICE_TITLE,
+      </if>
+      <if test="noticeContent != null">
+        NOTICE_CONTENT,
+      </if>
+      <if test="noticeType != null">
+        NOTICE_TYPE,
+      </if>
+      <if test="noticeCreatetime != null">
+        NOTICE_CREATETIME,
+      </if>
+      <if test="noticeCreater != null">
+        NOTICE_CREATER,
+      </if>
+      <if test="noticeReceiver != null">
+        NOTICE_RECEIVER,
+      </if>
+      <if test="forusertype != null">
+        FORUSERTYPE,
+      </if>
+      <if test="foronlineusers != null">
+        FORONLINEUSERS,
+      </if>
+      <if test="needreaded != null">
+        NEEDREADED,
+      </if>
+      <if test="delFlag != null">
+        DEL_FLAG,
+      </if>
+      <if test="remarks2 != null">
+        REMARKS2,
+      </if>
+      <if test="remarks3 != null">
+        REMARKS3,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="noticeId != null">
+        #{noticeId,jdbcType=INTEGER},
+      </if>
+      <if test="noticeTitle != null">
+        #{noticeTitle,jdbcType=VARCHAR},
+      </if>
+      <if test="noticeContent != null">
+        #{noticeContent,jdbcType=VARCHAR},
+      </if>
+      <if test="noticeType != null">
+        #{noticeType,jdbcType=VARCHAR},
+      </if>
+      <if test="noticeCreatetime != null">
+        #{noticeCreatetime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="noticeCreater != null">
+        #{noticeCreater,jdbcType=BIGINT},
+      </if>
+      <if test="noticeReceiver != null">
+        #{noticeReceiver,jdbcType=VARCHAR},
+      </if>
+      <if test="forusertype != null">
+        #{forusertype,jdbcType=INTEGER},
+      </if>
+      <if test="foronlineusers != null">
+        #{foronlineusers,jdbcType=INTEGER},
+      </if>
+      <if test="needreaded != null">
+        #{needreaded,jdbcType=INTEGER},
+      </if>
+      <if test="delFlag != null">
+        #{delFlag,jdbcType=VARCHAR},
+      </if>
+      <if test="remarks2 != null">
+        #{remarks2,jdbcType=VARCHAR},
+      </if>
+      <if test="remarks3 != null">
+        #{remarks3,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+</mapper>

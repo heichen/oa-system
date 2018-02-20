@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.gxzn.forestoa.modules.document.dao.SendNumberMapper">
+	<!-- 查询文号 -->
+	<select id="getSendNumberByType" resultType="java.lang.Long"
+		parameterType="com.gxzn.forestoa.modules.document.entity.SendNumber">
+		SELECT NODE FROM tb_send_number
+		where TYPE =
+		#{type,jdbcType=VARCHAR} AND `YEAR`= #{year,jdbcType=VARCHAR}
+	</select>
+	<!-- 保存文号 -->
+	<insert id="saveSendNumber"
+		parameterType="com.gxzn.forestoa.modules.document.entity.SendNumber"
+		useGeneratedKeys="true" keyProperty="id">
+		insert into tb_send_number
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="id != null">
+				ID,
+			</if>
+			<if test="year != null">
+				YEAR,
+			</if>
+			<if test="type != null">
+				TYPE,
+			</if>
+			<if test="node != null">
+				NODE,
+			</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="id != null">
+				#{id,jdbcType=BIGINT},
+			</if>
+			<if test="year != null">
+				#{year,jdbcType=VARCHAR},
+			</if>
+			<if test="type != null">
+				#{type,jdbcType=VARCHAR},
+			</if>
+			<if test="node != null">
+				#{node,jdbcType=VARCHAR},
+			</if>
+		</trim>
+	</insert>
+	<!-- 查询所有得发文文号信息 -->
+	<select id="selectAll" resultType="java.util.Map">
+		select
+		*
+		from
+		tb_send_number
+		where 1=1
+		<if test="year != null">
+			and YEAR = #{year,jdbcType=VARCHAR}
+		</if>
+	</select>
+	<!-- 更新发文 文号信息 -->
+	<update id="update"
+		parameterType="com.gxzn.forestoa.modules.document.entity.SendNumber">
+		update tb_send_number
+		<set>
+			<if test="year != null">
+				YEAR = #{year,jdbcType=VARCHAR},
+			</if>
+			<if test="type != null">
+				TYPE = #{type,jdbcType=VARCHAR},
+			</if>
+			<if test="node != null">
+				NODE = #{node,jdbcType=BIGINT},
+			</if>
+		</set>
+		where ID = #{id,jdbcType=BIGINT}
+	</update>
+
+	<!-- 通过id查找发文文号信息 -->
+	<select id="selectById"
+		resultType="com.gxzn.forestoa.modules.document.entity.SendNumber">
+
+		select * from tb_send_number where ID =
+		#{id,jdbcType=BIGINT}
+
+	</select>
+	<!-- 更新文号 -->
+	<update id="updateNode"
+		parameterType="com.gxzn.forestoa.modules.document.entity.SendNumber">
+		UPDATE tb_send_number SET NODE=
+		#{node,jdbcType=VARCHAR},TYPE=#{type,jdbcType=VARCHAR}
+		WHERE TYPE=
+		#{type,jdbcType=VARCHAR} AND `YEAR`= #{year,jdbcType=VARCHAR}
+	</update>
+</mapper>

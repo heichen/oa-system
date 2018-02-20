@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN">
+	<properties>
+		<property name="LOG_HOME">E:/logs/oa</property>
+		<property name="SQL_LEVEL">TRACE</property>
+	</properties>
+	<Appenders>
+		<Console name="Console" target="SYSTEM_OUT">
+			<PatternLayout pattern="%d{YYYY-MM-dd HH:mm:ss} [%t] %-5p %c{1}:%L - %msg%n" />
+		</Console>
+		<RollingFile name="RollingFile" fileName="${LOG_HOME}/info.log"
+			filePattern="${LOG_HOME}/$${date:yyyy-MM-dd}/info-%d{yyyy-MM-dd}-%i.log.gz">
+			<!--控制台只输出level及以上级别的信息（onMatch），其他的直接拒绝（onMismatch） -->
+			<ThresholdFilter level="TRACE" onMatch="ACCEPT"
+				onMismatch="DENY" />
+			<PatternLayout
+				pattern="[%.4p]-[%d{yyyy-MM-dd HH:mm:ss.SSS}] %t %c{1}:%L [%m]%n" />
+			<Policies>
+				<TimeBasedTriggeringPolicy modulate="true"
+					interval="1" />
+				<SizeBasedTriggeringPolicy size="300MB" />
+			</Policies>
+			<DefaultRolloverStrategy max="250" />
+		</RollingFile>
+
+		<RollingFile name="RollingErrorFile" fileName="${LOG_HOME}/error.log"
+			filePattern="${LOG_HOME}/$${date:yyyy-MM-dd}/error-%d{yyyy-MM-dd}-%i.log.gz">
+			<!--控制台只输出level及以上级别的信息（onMatch），其他的直接拒绝（onMismatch） -->
+			<ThresholdFilter level="TRACE" onMatch="ACCEPT"
+				onMismatch="DENY" />
+			<PatternLayout
+				pattern="[%.4p]-[%d{yyyy-MM-dd HH:mm:ss.SSS}] %t %c{1}:%L [%m]%n" />
+			<Policies>
+				<TimeBasedTriggeringPolicy modulate="true"
+					interval="1" />
+				<SizeBasedTriggeringPolicy size="300MB" />
+			</Policies>
+			<DefaultRolloverStrategy max="250" />
+		</RollingFile>
+
+	</Appenders>
+	<Loggers>
+		<asyncRoot level="INFO">
+			<appender-ref level="INFO" ref="Console" />
+			<appender-ref level="INFO" ref="RollingFile" />
+			<appender-ref level="ERROR" ref="RollingErrorFile" />
+		</asyncRoot>
+		<logger name="org.springframework" level="INFO" />
+		<logger name="org.apache.ibatis" level="INFO" />
+		<logger name="java.sql" level="INFO" />
+		<logger name="com.gxzn.ares" level="INFO" />
+
+		<logger name="com.gxzn.forestoa.modules.document.dao" level="${SQL_LEVEL}">
+			<appender-ref ref="Console" />
+			<appender-ref ref="RollingFile" />
+		</logger>
+		<logger name="com.gxzn.forestoa.modules.fastmsg.dao" level="${SQL_LEVEL}">
+			<appender-ref ref="Console" />
+			<appender-ref ref="RollingFile" />
+		</logger>
+		<logger name="com.gxzn.forestoa.modules.notice.dao" level="${SQL_LEVEL}">
+			<appender-ref ref="Console" />
+			<appender-ref ref="RollingFile" />
+		</logger>
+		<logger name="com.gxzn.forestoa.modules.sys.dao" level="${SQL_LEVEL}">
+			<appender-ref ref="Console" />
+			<appender-ref ref="RollingFile" />
+		</logger>
+		<logger name="com.gxzn.forestoa.modules.task.dao" level="${SQL_LEVEL}">
+			<appender-ref ref="Console" />
+			<appender-ref ref="RollingFile" />
+		</logger>
+		<logger name="com.gxzn.forestoa.modules.unitManage.dao" level="${SQL_LEVEL}">
+			<appender-ref ref="Console" />
+			<appender-ref ref="RollingFile" />
+		</logger>
+		<logger name="com.gxzn.forestoa.modules.workplan.dao" level="${SQL_LEVEL}">
+			<appender-ref ref="Console" />
+			<appender-ref ref="RollingFile" />
+		</logger>
+		<logger name="com.gxzn.forestoa.modules.search.dao" level="${SQL_LEVEL}">
+			<appender-ref ref="Console" />
+			<appender-ref ref="RollingFile" />
+		</logger>
+		<logger name="com.gxzn.forestoa.modules.workarchives.dao" level="${SQL_LEVEL}">
+			<appender-ref ref="Console" />
+			<appender-ref ref="RollingFile" />
+		</logger>
+	</Loggers>
+
+</Configuration>    

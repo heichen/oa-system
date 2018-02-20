@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.gxzn.forestoa.modules.briefing.dao.BriefingSendMapper">
+	<sql id="briefingSend">
+		ri.SEND_ID, ri.NUMBER, ri.HOST_DEPARTMENT,ri.TITLE,
+		ri.ARCHIVAL_PERIOD,ri.PRE_CAST_COLUMN,
+		ri.COPIES, ri.PAGES, ri.TYPE,
+		DATE_FORMAT(ri.CREATE_TIME,
+		'%Y-%m-%d %H:%i:%S') AS CREATE_TIME,
+		ri.MAIN_COMPANY, ri.COPY_COMPANY,
+		ri.SEND_STATUS, ri.DEL_FLAG
+	</sql>
+	<sql id="briefingSendTask">
+		rti.TASK_ID, rti.SEND_ID, rti.START_PERSON_ID, rti.END_PERSON_ID, rti.POFILE,
+		rti.REMARKS, rti.TASK_STATUS, rti.START_NODE_ID,rti.FILE,
+		rti.END_NODE_ID, rti.START_TIME, rti.END_TIME,rti.RTX_MSG, rti.DEL_FLAG
+	</sql>
+ <sql id="user">
+ u.USER_ID,u.USER_NAME
+  </sql>
+	<insert id="saveSend"
+		parameterType="com.gxzn.forestoa.modules.briefing.entity.BriefingSend"
+		useGeneratedKeys="true" keyProperty="sendId">
+		insert into tb_briefing_send
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="sendId != null">
+				SEND_ID,
+			</if>
+			<if test="number != null">
+				NUMBER,
+			</if>
+			<if test="hostDepartment != null">
+				HOST_DEPARTMENT,
+			</if>
+			<if test="title != null">
+				TITLE,
+			</if>
+			<if test="archivalPeriod != null">
+				ARCHIVAL_PERIOD,
+			</if>
+			<if test="copies != null">
+				COPIES,
+			</if>
+			<if test="pages != null">
+				PAGES,
+			</if>
+			<if test="type != null">
+				TYPE,
+			</if>
+			<if test="createTime != null">
+				CREATE_TIME,
+			</if>
+			<if test="preCastColumn != null">
+				PRE_CAST_COLUMN,
+			</if>
+			<if test="mainCompany != null">
+				MAIN_COMPANY,
+			</if>
+			<if test="copyCompany != null">
+				COPY_COMPANY,
+			</if>
+			<if test="sendStatus != null">
+				SEND_STATUS,
+			</if>
+			<if test="delFlag != null">
+				DEL_FLAG,
+			</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="sendId != null">
+				#{sendId,jdbcType=BIGINT},
+			</if>
+			<if test="number != null">
+				#{number,jdbcType=BIGINT},
+			</if>
+			<if test="hostDepartment != null">
+				#{hostDepartment,jdbcType=BIGINT},
+			</if>
+			<if test="title != null">
+				#{title,jdbcType=VARCHAR},
+			</if>
+			<if test="archivalPeriod != null">
+				#{archivalPeriod,jdbcType=VARCHAR},
+			</if>
+			<if test="copies != null">
+				#{copies,jdbcType=INTEGER},
+			</if>
+			<if test="pages != null">
+				#{pages,jdbcType=INTEGER},
+			</if>
+			<if test="type != null">
+				#{type,jdbcType=VARCHAR},
+			</if>
+				<if test="createTime != null">
+				#{createTime,jdbcType=TIMESTAMP},
+			</if>
+				<if test="preCastColumn != null">
+				#{preCastColumn,jdbcType=VARCHAR},
+			</if>
+			<if test="mainCompany != null">
+				#{mainCompany,jdbcType=BIGINT},
+			</if>
+			<if test="copyCompany != null">
+				#{copyCompany,jdbcType=VARCHAR},
+			</if>
+			<if test="sendStatus != null">
+				#{sendStatus,jdbcType=VARCHAR},
+			</if>
+			<if test="delFlag != null">
+				#{delFlag,jdbcType=VARCHAR},
+			</if>
+		</trim>
+	</insert>
+	<!-- 通过发文id获取发文详细信息 -->
+	<select id="getSendBySendId" parameterType="java.lang.Long"
+		resultType="java.util.Map">
+		select
+		<include refid="briefingSend"></include>
+		,
+		<include refid="briefingSendTask"></include>,
+		<include refid="user"></include>
+		from tb_briefing_send ri LEFT JOIN tb_briefing_send_task rti ON
+		rti.SEND_ID=ri.SEND_ID LEFT JOIN tb_users u ON rti.END_PERSON_ID=u.USER_ID
+		where  ri.DEL_FLAG='0' AND rti.DEL_FLAG='0' AND u.DEL_FLAG='0' AND ri.SEND_ID =
+		#{sendId,jdbcType=BIGINT}
+	</select>
+	<!-- 得到最大得发文号 -->
+	<select id="getMaxNumber" parameterType="java.lang.String" resultType="java.lang.Long">
+		SELECT max(NUMBER) FROM tb_briefing_send where TYPE=#{type,jdbcType=VARCHAR}
+	</select>
+	<!-- 更新发文 -->
+	<update id="updateSend"
+		parameterType="com.gxzn.forestoa.modules.briefing.entity.BriefingSend">
+		UPDATE tb_briefing_send ri
+		SET
+		SEND_STATUS = '1'
+		WHERE
+		ri.SEND_ID =
+		#{sendId,jdbcType=BIGINT}
+	</update>
+	<!-- 更新发文状态为归档 -->
+	<update id="updateSendStatus" parameterType="com.gxzn.forestoa.modules.briefing.entity.BriefingSend">
+		UPDATE
+		tb_briefing_send ri
+		SET
+		SEND_STATUS = '1',ARCHIVAL_PERIOD=#{archivalPeriod,jdbcType=VARCHAR}
+		WHERE ri.SEND_ID =
+		#{sendId,jdbcType=BIGINT}
+	</update>
+	<!-- 删除发文 -->
+	<update id="deleteBriefingSend" parameterType="java.lang.Long">
+		UPDATE
+		tb_briefing_send ri
+		SET ri.DEL_FLAG = '1'
+		WHERE ri.SEND_ID =
+		#{sendId,jdbcType=BIGINT}
+	</update>
+</mapper>

@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gxzn.forestoa.modules.sys.dao.MenuMapper">
+
+	<resultMap id="MenuMap" type="com.gxzn.forestoa.modules.sys.entity.Menu">
+		<id column="M_ID" jdbcType="BIGINT" property="mId" />
+		<result column="M_NAME" jdbcType="VARCHAR" property="mName" />
+		<result column="M_URL" jdbcType="VARCHAR" property="mUrl" />
+		<result column="PARENTE_ID" jdbcType="BIGINT" property="parenteId" />
+		<result column="CREATE_TIME" jdbcType="TIMESTAMP" property="createTime" />
+		<result column="M_LEAVE" jdbcType="INTEGER" property="mLeave" />
+		<result column="SORT" jdbcType="INTEGER" property="sort" />
+		<result column="DEL_FLAG" jdbcType="VARCHAR" property="delFlag" />
+		<result column="RM_ID" jdbcType="BIGINT" property="rmId" />
+		<result column="binding" jdbcType="BIGINT" property="binDing" />
+	</resultMap>
+
+	<resultMap id="OneMenuMap" type="com.gxzn.forestoa.modules.sys.entity.Menu">
+		<id column="M_ID" jdbcType="BIGINT" property="mId" />
+		<result column="M_NAME" jdbcType="VARCHAR" property="mName" />
+		<result column="M_URL" jdbcType="VARCHAR" property="mUrl" />
+		<result column="CREATE_TIME" jdbcType="TIMESTAMP" property="createTime" />
+		<result column="M_LEAVE" jdbcType="INTEGER" property="mLeave" />
+		<result column="SORT" jdbcType="INTEGER" property="sort" />
+		<result column="PARENTE_ID" jdbcType="BIGINT" property="parenteId" />
+		<result column="DEL_FLAG" jdbcType="VARCHAR" property="delFlag" />
+		<result column="RM_ID" jdbcType="BIGINT" property="rmId" />
+		<result column="R_ID" jdbcType="BIGINT" property="rId" />
+	</resultMap>
+
+	<select id="getMenuTree" resultMap="MenuMap" parameterType="java.lang.Long">
+		SELECT * FROM tb_menu WHERE FIND_IN_SET(M_ID, getMenuTree(#{mId})) ORDER BY SORT
+	</select>
+
+
+	<select id="getMenuTreeByrId" resultMap="MenuMap" parameterType="java.lang.Long">
+		SELECT m.*,tmp.RM_ID,(CASE WHEN tmp.RM_ID IS NOT NULL THEN 1 ELSE 0
+		END) binding
+		FROM tb_menu m LEFT JOIN (SELECT * FROM tb_role_menu rm WHERE
+		rm.R_ID=#{rId}) tmp
+		ON m.M_ID=tmp.M_ID ORDER BY m.SORT
+	</select>
+
+	<select id="getMenuListByrId" resultMap="OneMenuMap"
+		parameterType="java.lang.Long">
+		SELECT rm.RM_ID,m.* FROM tb_role_menu rm LEFT JOIN tb_menu m
+		ON rm.M_ID=m.M_ID WHERE rm.R_ID=#{rId} ORDER BY m.SORT
+	</select>
+	
+	<select id="getMenuListByrIdList" parameterType="java.util.List" resultMap="OneMenuMap">
+		SELECT rm.R_ID,m.M_NAME 
+		FROM tb_role_menu rm LEFT JOIN tb_menu m ON rm.M_ID=m.M_ID WHERE rm.R_ID IN
+		<!-- 注意foreach的语法,集合直接写list字符串，用item表示当前遍历的对象，结果集合通过使用逗号分隔使用separator属性 -->
+		<foreach collection="list" item="item"  open="(" separator="," close=")">
+			#{item.rId}
+		</foreach>
+	</select>
+	
+	<select id="getMenuListByrIds" parameterType="java.util.List" resultMap="OneMenuMap">
+		SELECT m.M_ID,m.M_NAME,m.M_LEAVE,m.PARENTE_ID
+		FROM tb_role_menu rm LEFT JOIN tb_menu m ON rm.M_ID=m.M_ID WHERE rm.R_ID IN 
+		<!-- 注意foreach的语法,集合直接写list字符串，用item表示当前遍历的对象，结果集合通过使用逗号分隔使用separator属性 -->
+		<foreach collection="list" item="item"  open="(" separator="," close=")">
+			#{item}
+		</foreach>
+		GROUP BY m.M_ID
+	</select>
+	
+	<select id="getMenuListAll"  resultMap="OneMenuMap">
+		SELECT m.M_ID,m.M_NAME,m.M_LEAVE,m.PARENTE_ID
+		FROM  tb_menu m 
+	</select>
+	
+</mapper>

@@ -1,0 +1,224 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gxzn.forestoa.modules.unitManage.dao.UnitMapper">
+  <resultMap id="BaseResultMap" type="com.gxzn.forestoa.modules.unitManage.entity.Unit">
+    <id column="ID" jdbcType="BIGINT" property="id" />
+    <result column="NAME" jdbcType="VARCHAR" property="name" />
+    <result column="MANAGER" jdbcType="VARCHAR" property="manager" />
+    <result column="PHONE" jdbcType="VARCHAR" property="phone" />
+    <result column="STATUS" jdbcType="VARCHAR" property="status" />
+    <result column="DEL_FLAG" jdbcType="VARCHAR" property="delFlag" />
+    <result column="REMARKS1" jdbcType="VARCHAR" property="remarks1" />
+    <result column="REMARKS2" jdbcType="VARCHAR" property="remarks2" />
+    <result column="REMARKS3" jdbcType="VARCHAR" property="remarks3" />
+  </resultMap>
+  
+  <sql id="unit">
+    ID, NAME, MANAGER, PHONE, STATUS, DEL_FLAG, REMARKS1, REMARKS2, REMARKS3
+  </sql>
+  
+  
+  <!--查询所有收发单位 -->
+  <select id="selectAll" resultMap="BaseResultMap">
+  	select
+  		<include refid="unit"></include>
+  	from
+  		tb_unit
+  	where
+  		DEL_FLAG = 0
+         <if test="_parameter != ''">
+        and NAME LIKE '%${_parameter}%'
+      </if>
+  </select>
+  
+  
+  
+  
+  <!-- 根据收发单位Id查询单个收发单位 -->
+  <select id="selectByKey" resultMap="BaseResultMap" parameterType="java.lang.Long">
+  	select
+  		*
+  	from
+  		tb_unit
+  	where
+  	 	ID=#{unitId,jdbcType=BIGINT}
+  </select>
+  <!-- 查询来文单位 -->
+  <select id="selectByLAI" resultMap="BaseResultMap">
+  	select
+  		<include refid="unit"></include>
+  	from
+  		tb_unit	
+  	where
+  	 	STATUS = '来文单位'
+  </select>
+  <!-- 查询主送单位 -->
+  <select id="selectByZHU" resultMap="BaseResultMap">
+  	select
+  		<include refid="unit"></include>
+  	from
+  		tb_unit	
+  	where
+  	 	STATUS = '主送单位'
+  </select>
+  <!-- 查询抄送单位 -->
+  <select id="selectByCHAO" resultMap="BaseResultMap">
+  	select
+  		<include refid="unit"></include>
+  	from
+  		tb_unit	
+  	where
+  	 	STATUS = '抄送单位'
+  </select>
+  <!-- 通过id来单位 -->
+  <select id="selectLAIById" resultMap="BaseResultMap">
+  	select
+  		<include refid="unit"></include>
+  	from
+  		tb_unit	
+  	where
+  	 	STATUS = '来文单位' and ID=#{unitId,jdbcType=BIGINT}
+  </select>
+  
+  <!-- 通过id主送单位 -->
+  <select id="selectZHUAIById" resultMap="BaseResultMap">
+  	select
+  		<include refid="unit"></include>
+  	from
+  		tb_unit	
+  	where
+  	 	STATUS = '主送单位' and ID=#{unitId,jdbcType=BIGINT}
+  </select>
+  <!-- 通过id抄送单位 -->
+  <select id="selectCHAOAIById" resultMap="BaseResultMap">
+  	select
+  		<include refid="unit"></include>
+  	from
+  		tb_unit	
+  	where
+  	 	STATUS = '抄送单位' and ID=#{unitId,jdbcType=BIGINT}
+  </select>
+  
+  <!-- 根据收发单位标题查询收发单位 -->
+  <select id="selectByTitle" resultMap="BaseResultMap">
+  	select
+  		<include refid="unit"></include>
+  	from
+  		tb_unit	
+  	where
+  	 	STATUS LIKE '%${temp}%'
+  </select>
+  
+  <!-- 根据收发单位Id进行物理删除 -->
+  <delete id="delete" parameterType="java.lang.Long">
+		delete 
+			from tb_unit
+		where 
+			ID=#{unitId,jdbcType=BIGINT}
+	</delete>
+	
+  <!--根据收发单位Id进行逻辑删除-->
+	<update id="delete2" parameterType="java.lang.Long">
+		update  
+			tb_unit
+		set
+			DEL_FLAG = "1"
+		where 
+			ID=#{unitId,jdbcType=BIGINT}
+	</update>
+  
+  <!-- 收发单位编辑 -->
+  	<update id="update" parameterType="com.gxzn.forestoa.modules.unitManage.entity.Unit">
+    update tb_unit
+    <set>
+      <if test="name != null">
+        NAME = #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="manager != null">
+        MANAGER = #{manager,jdbcType=VARCHAR},
+      </if>
+      <if test="phone != null">
+        PHONE = #{phone,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null">
+        STATUS = #{status,jdbcType=VARCHAR},
+      </if>
+      <if test="delFlag != null">
+        DEL_FLAG = #{delFlag,jdbcType=VARCHAR},
+      </if>
+      <if test="remarks1 != null">
+        REMARKS1 = #{remarks1,jdbcType=VARCHAR},
+      </if>
+      <if test="remarks2 != null">
+        REMARKS2 = #{remarks2,jdbcType=VARCHAR},
+      </if>
+      <if test="remarks3 != null">
+        REMARKS3 = #{remarks3,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where ID = #{id,jdbcType=BIGINT}
+  </update>
+  <!--收发单位的添加  -->
+  <insert id="insert" parameterType="com.gxzn.forestoa.modules.unitManage.entity.Unit">
+    insert into tb_unit
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        ID,
+      </if>
+      <if test="name != null">
+        NAME,
+      </if>
+      <if test="manager != null">
+        MANAGER,
+      </if>
+      <if test="phone != null">
+        PHONE,
+      </if>
+      <if test="status != null">
+        STATUS,
+      </if>
+      <if test="delFlag != null">
+        DEL_FLAG,
+      </if>
+      <if test="remarks1 != null">
+        REMARKS1,
+      </if>
+      <if test="remarks2 != null">
+        REMARKS2,
+      </if>
+      <if test="remarks3 != null">
+        REMARKS3,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="name != null">
+        #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="manager != null">
+        #{manager,jdbcType=VARCHAR},
+      </if>
+      <if test="phone != null">
+        #{phone,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null">
+        #{status,jdbcType=VARCHAR},
+      </if>
+      <if test="delFlag != null">
+        #{delFlag,jdbcType=VARCHAR},
+      </if>
+      <if test="remarks1 != null">
+        #{remarks1,jdbcType=VARCHAR},
+      </if>
+      <if test="remarks2 != null">
+        #{remarks2,jdbcType=VARCHAR},
+      </if>
+      <if test="remarks3 != null">
+        #{remarks3,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  
+</mapper>

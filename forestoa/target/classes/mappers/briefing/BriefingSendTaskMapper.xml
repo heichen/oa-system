@@ -1,0 +1,217 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.gxzn.forestoa.modules.briefing.dao.BriefingSendTaskMapper">
+	<sql id="briefingSend">
+		ri.SEND_ID, ri.NUMBER, ri.HOST_DEPARTMENT, ri.TITLE,
+		ri.COPIES,ri.ARCHIVAL_PERIOD,ri.PRE_CAST_COLUMN,
+		 ri.PAGES, ri.TYPE,
+		DATE_FORMAT(ri.CREATE_TIME,
+		'%Y-%m-%d %H:%i:%S') AS CREATE_TIME,
+		ri.MAIN_COMPANY, ri.COPY_COMPANY,
+		 ri.SEND_STATUS,
+		ri.DEL_FLAG
+	</sql>
+	<sql id="briefingSendTask">
+		rti.TASK_ID, rti.SEND_ID, rti.START_PERSON_ID,
+		rti.END_PERSON_ID, rti.POFILE,rti.FILE,
+		rti.REMARKS, rti.TASK_STATUS,rti.OPINION,
+		rti.START_NODE_ID,
+		rti.END_NODE_ID, rti.START_TIME, rti.END_TIME,rti.RTX_MSG,
+		rti.DEL_FLAG
+	</sql>
+
+	<insert id="saveSendTask"
+		parameterType="com.gxzn.forestoa.modules.briefing.entity.BriefingSendTask"
+		useGeneratedKeys="true" keyProperty="taskId">
+		insert into tb_briefing_send_task
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="taskId != null">
+				TASK_ID,
+			</if>
+			<if test="sendId != null">
+				SEND_ID,
+			</if>
+			<if test="startPersonId != null">
+				START_PERSON_ID,
+			</if>
+			<if test="endPersonId != null">
+				END_PERSON_ID,
+			</if>
+			<if test="file != null">
+				FILE,
+			</if>
+			<if test="pofile != null">
+				POFILE,
+			</if>
+			<if test="remarks != null">
+				REMARKS,
+			</if>
+			<if test="taskStatus != null">
+				TASK_STATUS,
+			</if>
+			<if test="opinion != null">
+				OPINION,
+			</if>
+			<if test="startNodeId != null">
+				START_NODE_ID,
+			</if>
+			<if test="endNodeId != null">
+				END_NODE_ID,
+			</if>
+			<if test="startTime != null">
+				START_TIME,
+			</if>
+			<if test="endTime != null">
+				END_TIME,
+			</if>
+			<if test="rtxMsg != null">
+				RTX_MSG,
+			</if>
+			<if test="isBack != null">
+				isBack,
+			</if>
+			<if test="delFlag != null">
+				DEL_FLAG,
+			</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="taskId != null">
+				#{taskId,jdbcType=BIGINT},
+			</if>
+			<if test="sendId != null">
+				#{sendId,jdbcType=BIGINT},
+			</if>
+			<if test="startPersonId != null">
+				#{startPersonId,jdbcType=BIGINT},
+			</if>
+			<if test="endPersonId != null">
+				#{endPersonId,jdbcType=BIGINT},
+			</if>
+			<if test="file != null">
+				#{file,jdbcType=VARCHAR},
+			</if>
+			<if test="pofile != null">
+				#{pofile,jdbcType=VARCHAR},
+			</if>
+			<if test="remarks != null">
+				#{remarks,jdbcType=VARCHAR},
+			</if>
+			<if test="taskStatus != null">
+				#{taskStatus,jdbcType=VARCHAR},
+			</if>
+			<if test="opinion != null">
+				#{opinion,jdbcType=VARCHAR},
+			</if>
+			<if test="startNodeId != null">
+				#{startNodeId,jdbcType=INTEGER},
+			</if>
+			<if test="endNodeId != null">
+				#{endNodeId,jdbcType=INTEGER},
+			</if>
+			<if test="startTime != null">
+				#{startTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="endTime != null">
+				#{endTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="rtxMsg != null">
+				#{rtxMsg,jdbcType=VARCHAR},
+			</if>
+			<if test="isBack != null">
+				#{isBack,jdbcType=VARCHAR},
+			</if>
+			<if test="delFlag != null">
+				#{delFlag,jdbcType=VARCHAR},
+			</if>
+		</trim>
+	</insert>
+	<!-- 通过发文人员id得到发文待办任务 -->
+	<select id="getSendTask" parameterType="java.lang.Long"
+		resultType="java.util.Map">
+		select
+		<include refid="briefingSendTask"></include>
+		,
+		<include refid="briefingSend"></include>
+		FROM tb_briefing_send_task rti LEFT JOIN tb_briefing_send ri ON
+		rti.SEND_ID=ri.SEND_ID
+		WHERE rti.TASK_STATUS='0' and ri.DEL_FLAG='0' and rti.DEL_FLAG='0' and
+		rti.END_PERSON_ID=#{endPersonId}
+	</select>
+	<!-- 根据发文任务id获取发文详细信息 -->
+	<select id="getSendByTaskId" parameterType="java.lang.Long"
+		resultType="java.util.Map">
+		select
+		<include refid="briefingSend"></include>
+		,
+		<include refid="briefingSendTask"></include>
+		from tb_briefing_send ri LEFT JOIN tb_briefing_send_task rti ON
+		rti.SEND_ID=ri.SEND_ID
+		where ri.DEL_FLAG='0' and rti.DEL_FLAG='0' and rti.TASK_ID =
+		#{taskId,jdbcType=BIGINT} 
+		
+	</select>
+	<!-- 通过任务id得到开始人员id -->
+	<select id="getStartPersonId" parameterType="java.lang.Long"
+		resultType="com.gxzn.forestoa.modules.briefing.entity.BriefingSendTask">
+		SELECT min(TASK_ID) as TASK_ID,START_PERSON_ID FROM
+		tb_briefing_send_task
+		WHERE SEND_ID=#{sendId,jdbcType=BIGINT}
+	</select>
+	<!-- 回退人员查询 -->
+	<select id="getReturnPersonId" parameterType="java.util.Map"
+		resultType="java.lang.Long">
+		SELECT rti.START_PERSON_ID FROM tb_briefing_send_task rti WHERE rti.SEND_ID=#{sendId,jdbcType=BIGINT}
+		 AND rti.START_NODE_ID=	#{startNodeId,jdbcType=INTEGER}
+	</select>
+	<!-- 更新发文任务为已办 -->
+	<update id="updateCompleteTask"
+		parameterType="com.gxzn.forestoa.modules.briefing.entity.BriefingSendTask">
+		UPDATE
+		tb_briefing_send_task rti
+		SET
+		rti.TASK_STATUS = '1' , rti.END_TIME=	#{endTime,jdbcType=TIMESTAMP},
+		rti.REMARKS=#{remarks,jdbcType=VARCHAR},
+		rti.FILE=#{file,jdbcType=VARCHAR},rti.OPINION=#{opinion,jdbcType=VARCHAR}
+		WHERE rti.TASK_ID =
+		#{taskId,jdbcType=BIGINT}
+	</update>
+	<!-- 更新发文任务为退回 -->
+	<update id="updateReturnTask"
+		parameterType="com.gxzn.forestoa.modules.briefing.entity.BriefingSendTask">
+		UPDATE
+		tb_briefing_send_task rti
+		SET
+		rti.OPINION = '0' , rti.END_TIME=#{endTime,jdbcType=TIMESTAMP},
+		rti.REMARKS=#{remarks,jdbcType=VARCHAR},
+		rti.FILE=#{file,jdbcType=VARCHAR},rti.OPINION=#{opinion,jdbcType=VARCHAR},
+		rti.isBack=#{isBack,jdbcType=VARCHAR}
+		WHERE rti.TASK_ID =
+		#{taskId,jdbcType=BIGINT}
+	</update>
+	<!-- 删除发文任务 -->
+	<update id="deleteBriefingSendTask" parameterType="java.lang.Long">
+		UPDATE
+		tb_briefing_send_task rti
+		SET rti.DEL_FLAG = '1'
+		WHERE rti.RECEIVE_ID =
+		#{receiveId,jdbcType=BIGINT}
+	</update>
+	<!--查询发简报调用RTX提醒失败的信息-->
+	<select id="selestErrorBriefing" resultType="java.util.Map">
+		SELECT
+			<include refid="briefingSendTask"></include>
+		FROM
+			tb_briefing_send_task rti
+		WHERE 
+			rti.RTX_MSG != '正确'	 
+	</select>
+	<!--更新发简报RTX提醒标志位-->
+	<update id="updateRTXMSG" parameterType="java.util.Map">
+		UPDATE
+		tb_briefing_send_task rti
+		SET
+		rti.RTX_MSG = #{RTX_MSG,jdbcType=VARCHAR}
+		WHERE rti.TASK_ID =
+		#{TASK_ID,jdbcType=BIGINT}
+	</update>
+</mapper>

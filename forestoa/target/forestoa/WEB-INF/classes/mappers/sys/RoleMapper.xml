@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gxzn.forestoa.modules.sys.dao.RoleMapper">
+
+	<resultMap id="OneRoleMap" type="com.gxzn.forestoa.modules.sys.entity.Role">
+		<id column="R_ID" jdbcType="BIGINT" property="rId" />
+		<result column="R_NAME" jdbcType="VARCHAR" property="rName" />
+		<result column="R_CREATE_TIME" jdbcType="TIMESTAMP" property="createTime" />
+		<result column="R_DEL_FLAG" jdbcType="VARCHAR" property="delFlag" />
+	</resultMap>
+
+	<select id="selectByKey" parameterType="java.lang.Long"
+		resultMap="OneRoleMap">
+		SELECT
+		r.R_ID,
+		r.R_NAME,
+		r.CREATE_TIME R_CREATE_TIME,
+		r.DEL_FLAG R_DEL_FLAG
+		FROM
+		tb_role r
+		WHERE r.R_ID=#{rId}
+	</select>
+
+	<select id="findByPage" resultMap="OneRoleMap">
+		SELECT
+		r.R_ID,
+		r.R_NAME,
+		r.CREATE_TIME R_CREATE_TIME,
+		r.DEL_FLAG R_DEL_FLAG
+		FROM
+		tb_role r
+		WHERE r.DEL_FLAG=0
+	</select>
+
+
+	<insert id="save" parameterType="com.gxzn.forestoa.modules.sys.entity.Role"
+		useGeneratedKeys="true" keyProperty="rId">
+		insert into tb_role
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="rId != null">
+				R_ID,
+			</if>
+			<if test="rName != null">
+				R_NAME,
+			</if>
+			<if test="createTime != null">
+				CREATE_TIME,
+			</if>
+			<if test="delFlag != null">
+				DEL_FLAG,
+			</if>
+			<if test="remarks != null">
+				REMARKS,
+			</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="rId != null">
+				#{rId,jdbcType=BIGINT},
+			</if>
+			<if test="rName != null">
+				#{rName,jdbcType=VARCHAR},
+			</if>
+			<if test="createTime != null">
+				#{createTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="delFlag != null">
+				#{delFlag,jdbcType=VARCHAR},
+			</if>
+			<if test="remarks != null">
+				#{remarks,jdbcType=LONGVARCHAR},
+			</if>
+		</trim>
+	</insert>
+
+
+	<!-- 批量新增的时候，注意接收的对象是一个列表，需要在动态拼接sql的时候遍历参数集合对象 -->
+	<insert id="saveRoleMenu" parameterType="java.util.List">
+		Insert into tb_role_menu (R_ID,M_ID) values
+		<!-- 注意foreach的语法,集合直接写list字符串，用item表示当前遍历的对象，结果集合通过使用逗号分隔使用separator属性 -->
+		<foreach collection="list" item="item" separator=",">
+			(#{item.rId},#{item.mId})
+		</foreach>
+	</insert>
+
+
+	<update id="delete" parameterType="java.lang.Long">
+		update tb_role
+		set DEL_FLAG =
+		1
+		where
+		R_ID = #{rId,jdbcType=BIGINT}
+	</update>
+
+
+	<update id="update" parameterType="com.gxzn.forestoa.modules.sys.entity.Role">
+		update tb_role
+		<set>
+			<if test="rName != null">
+				R_NAME = #{rName,jdbcType=VARCHAR},
+			</if>
+			<if test="createTime != null">
+				CREATE_TIME = #{createTime,jdbcType=TIMESTAMP},
+			</if>
+			<if test="delFlag != null">
+				DEL_FLAG = #{delFlag,jdbcType=VARCHAR},
+			</if>
+			<if test="remarks != null">
+				REMARKS = #{remarks,jdbcType=LONGVARCHAR},
+			</if>
+		</set>
+		where R_ID = #{rId,jdbcType=BIGINT}
+	</update>
+
+
+	<delete id="deleteRoleMenuSByrmId" parameterType="java.util.List">
+		delete from
+		tb_role_menu
+		where RM_ID IN
+		<!-- 注意foreach的语法,集合直接写list字符串，用item表示当前遍历的对象，结果集合通过使用逗号分隔使用separator属性 -->
+		<foreach collection="list" item="item" open="(" separator=","
+			close=")">
+			#{item}
+		</foreach>
+	</delete>
+
+</mapper>

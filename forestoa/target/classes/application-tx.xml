@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:context="http://www.springframework.org/schema/context" xmlns:tx="http://www.springframework.org/schema/tx"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.3.xsd
+            http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.3.xsd
+            http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.3.xsd
+            http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.3.xsd">
+
+	<bean id="transactionManager"
+		class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource" />
+	</bean>
+
+	<aop:config expose-proxy="true" proxy-target-class="true">
+		<aop:advisor id="managerTx" advice-ref="txAdvice"
+			pointcut="execution(* com..*Service.*(..))" />
+	</aop:config>
+
+	<tx:annotation-driven proxy-target-class="true"
+		transaction-manager="transactionManager" />
+
+	<tx:advice id="txAdvice" transaction-manager="transactionManager">
+		<tx:attributes>
+			<tx:method name="runTask*" propagation="REQUIRED"
+				rollback-for="java.lang.Exception" />
+			<tx:method name="insert*" propagation="REQUIRED"
+				rollback-for="java.lang.Exception" />
+			<tx:method name="batch*" propagation="REQUIRED"
+				rollback-for="java.lang.Exception" />
+			<tx:method name="create*" propagation="REQUIRED"
+				rollback-for="java.lang.Exception" />
+			<tx:method name="save*" propagation="REQUIRED"
+				rollback-for="java.lang.Exception" />
+			<tx:method name="update*" propagation="REQUIRED"
+				rollback-for="java.lang.Exception" />
+			<tx:method name="delete*" propagation="REQUIRED"
+				rollback-for="java.lang.Exception" />
+			<tx:method name="crud*" propagation="REQUIRED"
+				rollback-for="java.lang.Exception" />
+			<tx:method name="schedule*" propagation="REQUIRED"
+				rollback-for="java.lang.Exception" />
+			<tx:method name="get*" propagation="REQUIRED"
+				rollback-for="java.lang.Exception" />
+			<tx:method name="do*" propagation="REQUIRED" rollback-for="java.lang.Exception" />
+			<tx:method name="*" read-only="true" />
+		</tx:attributes>
+	</tx:advice>
+
+</beans>

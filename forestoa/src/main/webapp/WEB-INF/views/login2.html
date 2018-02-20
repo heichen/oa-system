@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<!-- <meta name="viewport" content="width=divice-width,initial-scale=1.0,minimum-scale=1.0,maximum=1.0,user-scalable=no" /> -->
+		<meta http-equiv=X-UA-Compatible content=IE=8/>
+		<link rel="stylesheet" href="css/normalize.css" type="text/css" />
+		<link rel="stylesheet" href="css/font-awesome.min.css" type="text/css" />
+		<link rel="stylesheet" href="css/bootstrap.css" type="text/css" />
+		<link rel="stylesheet" href="css/login.css" type="text/css" />
+
+		<!-- <script src="./js/jquery-1.7.2.js"></script> -->
+		<script src="js/jquery-1.11.3.js"></script>
+		<script src="js/bootstrap.min.js"></script>
+		
+		
+
+	</head>
+
+	<body>
+		<div class="wrap" id="wrap">
+			<div class="register-wrap" id="register-wrap" style="padding: 100px 0;">
+				<div class="pic" id="pic" style="width: 50%;">
+					<img src="./images/logo-1.png" alt="" />
+				</div>
+				<div class="register" id="register" style="height: 300px;margin-top: 60px;">
+					<!--普通登录-->
+					<div class="register-con" id="rc">
+						<form action="#">
+							<ul>
+								<li class="form-group">
+									<input type="text" name="phone-num" class="form-control" placeholder="警号" />
+									<span class="fa fa-check success" style="display:none;color:green;position:relative;left:-25px;top:5px;"></span>
+
+								</li>
+								<li class="form-group">
+									<input type="password" name="password" id="pass" class="form-control" placeholder="密码" />
+
+								</li>
+								<li class="read">
+									<input type="checkbox" class="ck" name="check" value="1" checked="checked" />
+									<b>记住密码</b>
+								</li>
+								<li>
+									<button class="submit" type="button" id="login-btn" style="border-radius:5px;">立即登录</button>
+								</li>
+							</ul>
+						</form>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!--<script src="./js/login.js"></script>-->
+		<script src="./js/jquery.ez-bg-resize.js"></script>
+		<script>
+			$("body").ezBgResize({
+				img: "images/admin-login-bg.jpg",
+				opacity: 1,
+				center: true
+			});
+			
+			/*var _hH = $(window).height();
+			$('body').css('height',_hH);*/
+			
+			$('#login-btn').click(function(){
+				location.href = 'index.html';
+			})
+		</script>
+	</body>
+
+</html>

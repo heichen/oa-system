@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:task="http://www.springframework.org/schema/task"
+	xsi:schemaLocation="
+		http://www.springframework.org/schema/beans 
+		http://www.springframework.org/schema/beans/spring-beans-4.3.xsd 
+		http://www.springframework.org/schema/context
+		http://www.springframework.org/schema/context/spring-context-4.3.xsd
+		http://www.springframework.org/schema/aop
+		http://www.springframework.org/schema/aop/spring-aop-4.3.xsd
+		http://www.springframework.org/schema/task
+		http://www.springframework.org/schema/task/spring-task-4.3.xsd"
+	default-lazy-init="false">
+	<task:annotation-driven />
+	<task:scheduled-tasks>
+		<!-- 每隔半小时执行一次 -->
+		<task:scheduled ref="workPlanTaskService" method="runTask"
+			cron="0 30 8 ? * *" />
+		<task:scheduled ref="noticeNotifyTaskService" method="runTask"
+			cron="0 30 8 ? * *" />
+
+		<!-- 每天晚上十二点触发 -->
+		<task:scheduled ref="SendNumberTaskService" method="runTask"
+			cron="0 0 0 * * ?" />
+
+		<task:scheduled ref="documentNotifyTaskService" method="runTask"
+			initial-delay="30000" fixed-delay="1800000" />
+	</task:scheduled-tasks>
+</beans>

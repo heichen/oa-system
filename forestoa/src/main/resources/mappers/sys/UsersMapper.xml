@@ -1,0 +1,406 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gxzn.forestoa.modules.sys.dao.UsersMapper">
+  <resultMap id="BaseResultMap" type="com.gxzn.forestoa.modules.sys.entity.Users">
+    <id column="USER_ID" jdbcType="BIGINT" property="userId" />
+    <result column="USER_NUMBER" jdbcType="VARCHAR" property="userNumber" />
+    <result column="USER_NAME" jdbcType="VARCHAR" property="userName" />
+    <result column="SEX" jdbcType="VARCHAR" property="sex" />
+    <result column="PHONE" jdbcType="VARCHAR" property="phone" />
+    <result column="EMAIL" jdbcType="VARCHAR" property="email" />
+    <result column="LOGIN_NAME" jdbcType="VARCHAR" property="loginName" />
+    <result column="LOGIN_PASSWORD" jdbcType="VARCHAR" property="loginPassword" />
+    <result column="CREAT_TIME" jdbcType="TIMESTAMP" property="creatTime" />
+    <result column="USER_STATUS" jdbcType="VARCHAR" property="userStatus" />
+    <result column="DEL_FLAG" jdbcType="VARCHAR" property="delFlag" />
+    <result column="ORG_ID" jdbcType="BIGINT" property="orgId" />
+    <result column="ORG_STATUS" jdbcType="VARCHAR" property="orgStatus" />
+    <result column="USER_TYPE" jdbcType="VARCHAR" property="userType" />
+    <result column="ORG_ID1" jdbcType="BIGINT" property="orgId1" />
+    <result column="ROLE_ID1" jdbcType="BIGINT" property="roleId1" />
+    <result column="ORG_ID2" jdbcType="BIGINT" property="orgId2" />
+    <result column="ROLE_ID2" jdbcType="BIGINT" property="roleId2" />
+    <result column="ORG_ID3" jdbcType="BIGINT" property="orgId3" />
+    <result column="ROLE_ID3" jdbcType="BIGINT" property="roleId3" />
+    <result column="ORG_ID4" jdbcType="BIGINT" property="orgId4" />
+    <result column="ROLE_ID4" jdbcType="BIGINT" property="roleId4" />
+    <result column="ORG_ID5" jdbcType="BIGINT" property="orgId5" />
+    <result column="ROLE_ID5" jdbcType="BIGINT" property="roleId5" />
+    <result column="REMARKS" jdbcType="VARCHAR" property="remarks" />
+     <result column="orgs" jdbcType="VARCHAR" property="orgs" />
+  </resultMap>
+  
+  <sql id="user">
+  	u.USER_ID,u.USER_NUMBER,u.USER_NAME,u.SEX,u.PHONE,u.EMAIL,u.LOGIN_NAME,u.LOGIN_PASSWORD,u.CREAT_TIME,
+  	u.USER_STATUS,u.DEL_FLAG,u.ORG_ID,u.ORG_STATUS,u.ORG_ID1,u.USER_TYPE,u.ROLE_ID1,u.ORG_ID2,u.ROLE_ID2,
+  	u.ORG_ID3,u.ROLE_ID3,u.ORG_ID4,u.ROLE_ID4,u.ORG_ID5,u.ROLE_ID5,u.REMARKS,u.orgs
+  </sql>
+  
+  <!--查询所有人员管理 -->
+  <select id="selectAll" resultMap="BaseResultMap">
+  	select
+  		*
+  	from
+  		tb_users u
+  	where
+  		DEL_FLAG = '0'
+  </select>
+  
+  <!--查询所有人员管理 (除了登录者)-->
+  <select id="selectAllE" resultMap="BaseResultMap">
+  	select
+  		*
+  	from
+  		tb_users u
+  	where
+  		u.DEL_FLAG = '0' and u.USER_ID != #{userId}
+  </select>
+  
+  
+  
+  <!--根据组织去查找人 -->
+  <select id="selectAllByOrg" parameterType="java.util.Map" resultMap="BaseResultMap">
+  	select
+  		*
+  	from
+  		tb_users u
+  	where
+  		DEL_FLAG = '0'
+  		<if test="q_oId != ''">
+      		AND ORG_ID1 IN (${q_oId})
+      		OR	ORG_ID2 IN (${q_oId})
+      		OR	ORG_ID3 IN (${q_oId})
+      	</if>
+  </select>
+  
+  <!--查询所有人员管理 -->
+  <select id="selectAll2" resultMap="BaseResultMap">
+  	select
+  		*
+  	from
+  		tb_users u
+  	where
+  		DEL_FLAG = '0'
+  		 <if test="userNumber != ''">
+        and USER_NUMBER = #{userNumber,jdbcType=VARCHAR}
+      </if>
+      <if test="userName != ''">
+        and USER_NAME LIKE '%${userName}%'
+      </if>
+  </select>
+  <!-- 根据人员管理Id查询单个人员管理 -->
+  <select id="selectByKey" resultMap="BaseResultMap" parameterType="java.lang.Long">
+  	select
+  		*
+  	from
+  		tb_users u	
+  	where
+  	 	u.USER_ID=#{userId,jdbcType=BIGINT}
+  </select>
+  <!-- 根据警号查询单个人员管理 -->
+  <select id="selectByUnumber" resultMap="BaseResultMap">
+  	select
+  		<include refid="user"></include>
+  	from
+  		tb_users u	
+  	where
+  	 	u.USER_NUMBER=#{userNumber,jdbcType=BIGINT}
+  </select>
+  <!-- 根据人员管理标题查询人员管理 -->
+  <select id="selectByTitle" resultMap="BaseResultMap">
+  	select
+  		<include refid="user"></include>
+  	from
+  		tb_users u
+  	where
+  	 	w.W_TITLE LIKE CONCAT(CONCAT('%', #{temp}), '%')
+  </select>
+
+  
+  <!-- 根据人员管理Id进行物理删除 -->
+  <delete id="delete" parameterType="java.lang.Long">
+		delete 
+			from tb_users
+		where 
+		    USER_ID=#{userId,jdbcType=BIGINT}
+	</delete>
+	
+  <!--根据人员管理Id进行逻辑删除-->
+	<update id="delete2" parameterType="java.lang.Long">
+		update  
+			tb_users
+		set
+			DEL_FLAG = '1'
+		where 
+			USER_ID=#{userId,jdbcType=BIGINT}
+	</update>
+	<!--根据人员管理Id进行逻辑删除-->
+	<update id="updatePassword">
+		update  
+			tb_users
+		set
+			LOGIN_PASSWORD = #{loginPassword}
+		where 
+			USER_ID=#{userId,jdbcType=BIGINT}
+	</update>
+  
+  <!-- 人员管理编辑 -->
+  	<update id="update" parameterType="com.gxzn.forestoa.modules.sys.entity.Users">
+    update tb_users
+    <set>
+      <if test="userNumber != null">
+        USER_NUMBER = #{userNumber,jdbcType=VARCHAR},
+      </if>
+      <if test="userName != null">
+        USER_NAME = #{userName,jdbcType=VARCHAR},
+      </if>
+      <if test="sex != null">
+        SEX = #{sex,jdbcType=VARCHAR},
+      </if>
+      <if test="phone != null">
+        PHONE = #{phone,jdbcType=VARCHAR},
+      </if>
+      <if test="email != null">
+        EMAIL = #{email,jdbcType=VARCHAR},
+      </if>
+      <if test="loginName != null">
+        LOGIN_NAME = #{loginName,jdbcType=VARCHAR},
+      </if>
+      <if test="loginPassword != null">
+        LOGIN_PASSWORD = #{loginPassword,jdbcType=VARCHAR},
+      </if>
+      <if test="creatTime != null">
+        CREAT_TIME = #{creatTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="userStatus != null">
+        USER_STATUS = #{userStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="delFlag != null">
+        DEL_FLAG = #{delFlag,jdbcType=VARCHAR},
+      </if>
+      <if test="orgId != null">
+        ORG_ID = #{orgId,jdbcType=BIGINT},
+      </if>
+      <if test="orgStatus != null">
+        ORG_STATUS = #{orgStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="userType != null">
+        USER_TYPE = #{userType,jdbcType=BIGINT},
+      </if>
+      <if test="orgId1 != null">
+        ORG_ID1 = #{orgId1,jdbcType=BIGINT},
+      </if>
+      <if test="roleId1 != null">
+        ROLE_ID1 = #{roleId1,jdbcType=BIGINT},
+      </if>
+      <if test="orgId2 != null">
+        ORG_ID2 = #{orgId2,jdbcType=BIGINT},
+      </if>
+      <if test="roleId2 != null">
+        ROLE_ID2 = #{roleId2,jdbcType=BIGINT},
+      </if>
+      <if test="orgId3 != null">
+        ORG_ID3 = #{orgId3,jdbcType=BIGINT},
+      </if>
+      <if test="roleId3 != null">
+        ROLE_ID3 = #{roleId3,jdbcType=BIGINT},
+      </if>
+      <if test="orgId4 != null">
+        ORG_ID4 = #{orgId4,jdbcType=BIGINT},
+      </if>
+      <if test="roleId4 != null">
+        ROLE_ID4 = #{roleId4,jdbcType=BIGINT},
+      </if>
+      <if test="orgId5 != null">
+        ORG_ID5 = #{orgId5,jdbcType=BIGINT},
+      </if>
+      <if test="roleId5 != null">
+        ROLE_ID5 = #{roleId5,jdbcType=BIGINT},
+      </if>
+      <if test="remarks != null">
+        REMARKS = #{remarks,jdbcType=LONGVARCHAR},
+      </if>
+       <if test="orgs != null">
+        orgs = #{orgs,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where USER_ID = #{userId,jdbcType=BIGINT}
+  </update>
+  <!--人员管理的添加  -->
+  <insert id="insert" parameterType="com.gxzn.forestoa.modules.sys.entity.Users" useGeneratedKeys="true" keyProperty="userId">
+    insert into tb_users
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="userId != null">
+        USER_ID,
+      </if>
+      <if test="userNumber != null">
+        USER_NUMBER,
+      </if>
+      <if test="userName != null">
+        USER_NAME,
+      </if>
+      <if test="sex != null">
+        SEX,
+      </if>
+      <if test="phone != null">
+        PHONE,
+      </if>
+      <if test="email != null">
+        EMAIL,
+      </if>
+      <if test="loginName != null">
+        LOGIN_NAME,
+      </if>
+      <if test="loginPassword != null">
+        LOGIN_PASSWORD,
+      </if>
+      <if test="creatTime != null">
+        CREAT_TIME,
+      </if>
+      <if test="userStatus != null">
+        USER_STATUS,
+      </if>
+      <if test="delFlag != null">
+        DEL_FLAG,
+      </if>
+      <if test="orgId != null">
+        ORG_ID,
+      </if>
+      <if test="orgStatus != null">
+        ORG_STATUS,
+      </if>
+      <if test="userType != null">
+        USER_TYPE,
+      </if>
+      <if test="orgId1 != null">
+        ORG_ID1,
+      </if>
+      <if test="roleId1 != null">
+        ROLE_ID1,
+      </if>
+      <if test="orgId2 != null">
+        ORG_ID2,
+      </if>
+      <if test="roleId2 != null">
+        ROLE_ID2,
+      </if>
+      <if test="orgId3 != null">
+        ORG_ID3,
+      </if>
+      <if test="roleId3 != null">
+        ROLE_ID3,
+      </if>
+      <if test="orgId4 != null">
+        ORG_ID4,
+      </if>
+      <if test="roleId4 != null">
+        ROLE_ID4,
+      </if>
+      <if test="orgId5 != null">
+        ORG_ID5,
+      </if>
+      <if test="roleId5 != null">
+        ROLE_ID5,
+      </if>
+      <if test="remarks != null">
+        REMARKS,
+      </if>
+        <if test="orgs != null">
+        orgs,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="userId != null">
+        #{userId,jdbcType=BIGINT},
+      </if>
+      <if test="userNumber != null">
+        #{userNumber,jdbcType=VARCHAR},
+      </if>
+      <if test="userName != null">
+        #{userName,jdbcType=VARCHAR},
+      </if>
+      <if test="sex != null">
+        #{sex,jdbcType=VARCHAR},
+      </if>
+      <if test="phone != null">
+        #{phone,jdbcType=VARCHAR},
+      </if>
+      <if test="email != null">
+        #{email,jdbcType=VARCHAR},
+      </if>
+      <if test="loginName != null">
+        #{loginName,jdbcType=VARCHAR},
+      </if>
+      <if test="loginPassword != null">
+        #{loginPassword,jdbcType=VARCHAR},
+      </if>
+      <if test="creatTime != null">
+        #{creatTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="userStatus != null">
+        #{userStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="delFlag != null">
+        #{delFlag,jdbcType=VARCHAR},
+      </if>
+      <if test="orgId != null">
+        #{orgId,jdbcType=BIGINT},
+      </if>
+      <if test="orgStatus != null">
+        #{orgStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="userType != null">
+        #{userType,jdbcType=BIGINT},
+      </if>
+      <if test="orgId1 != null">
+        #{orgId1,jdbcType=BIGINT},
+      </if>
+      <if test="roleId1 != null">
+        #{roleId1,jdbcType=BIGINT},
+      </if>
+      <if test="orgId2 != null">
+        #{orgId2,jdbcType=BIGINT},
+      </if>
+      <if test="roleId2 != null">
+        #{roleId2,jdbcType=BIGINT},
+      </if>
+      <if test="orgId3 != null">
+        #{orgId3,jdbcType=BIGINT},
+      </if>
+      <if test="roleId3 != null">
+        #{roleId3,jdbcType=BIGINT},
+      </if>
+      <if test="orgId4 != null">
+        #{orgId4,jdbcType=BIGINT},
+      </if>
+      <if test="roleId4 != null">
+        #{roleId4,jdbcType=BIGINT},
+      </if>
+      <if test="orgId5 != null">
+        #{orgId5,jdbcType=BIGINT},
+      </if>
+      <if test="roleId5 != null">
+        #{roleId5,jdbcType=BIGINT},
+      </if>
+      <if test="remarks != null">
+        #{remarks,jdbcType=LONGVARCHAR},
+      </if>
+       <if test="orgs != null">
+         #{orgs,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <select id="login" resultMap="BaseResultMap">
+		select
+			<include refid="user"></include>
+		from 
+			tb_users u
+		where
+			u.USER_NUMBER=#{userNumber}
+	</select>
+	
+	<select id="selectUserByRoleId" resultMap="BaseResultMap">
+		SELECT * FROM tb_users tu 
+		WHERE tu.ROLE_ID1=#{rId} OR ROLE_ID2=#{rId} OR ROLE_ID3=#{rId}
+	</select>
+</mapper>

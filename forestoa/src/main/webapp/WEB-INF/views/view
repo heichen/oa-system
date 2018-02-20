@@ -1,0 +1,15 @@
+SELECT tds.SEND_ID ID ,tds.NUMBER,tds.TITLE,tds.CREATE_TIME,tds.ARCHIVAL_PERIOD,tds.PAGES,tds.SEND_STATUS isEnd,tdst.POFILE,tor.O_ID,tor.O_NAME,tdst.TASK_ID,tdst.START_NODE_ID,tdst.END_NODE_ID,tdst.START_PERSON_ID,tdst.END_PERSON_ID,tdst.TASK_STATUS,tdst.OPINION,tdst.isBack,tds.DEL_FLAG,1 'mark'
+FROM tb_document_send_task tdst LEFT JOIN tb_document_send tds ON tdst.SEND_ID=tds.SEND_ID
+LEFT JOIN tb_org tor ON tds.HOST_DEPARTMENT=tor.O_ID
+UNION ALL
+SELECT tdr.RECEIVE_ID ID ,tdr.NUMBER,tdr.TITLE,tdr.CREATE_TIME,tdr.ARCHIVAL_PERIOD,tdr.PAGES,tdr.RECEIVE_STATUS isEnd,tdr.POFILE,tor.O_ID,tor.O_NAME,tdrt.TASK_ID,tdrt.START_NODE_ID,tdrt.END_NODE_ID,tdrt.START_PERSON_ID,tdrt.END_PERSON_ID,tdrt.TASK_STATUS,tdrt.OPINION,tdrt.isBack,tdr.DEL_FLAG,2 'mark'
+FROM  tb_document_receive_task tdrt LEFT JOIN tb_document_receive tdr ON tdr.RECEIVE_ID=tdrt.RECEIVE_ID
+LEFT JOIN tb_org tor ON tdr.COMPANY=tor.O_ID
+UNION ALL
+SELECT tbs.SEND_ID ID,tbs.NUMBER,tbs.TITLE,tbs.CREATE_TIME,tbs.ARCHIVAL_PERIOD,tbs.PAGES,tbs.SEND_STATUS isEnd,tbst.OPINION,tor.O_ID,tor.O_NAME,tbst.TASK_ID,tbst.START_NODE_ID,tbst.END_NODE_ID,tbst.START_PERSON_ID,tbst.END_PERSON_ID,tbst.TASK_STATUS,tbst.OPINION,tbst.isBack,tbs.DEL_FLAG,3 'mark'
+FROM tb_briefing_send_task tbst LEFT JOIN tb_briefing_send  tbs ON tbst.SEND_ID=tbs.SEND_ID
+LEFT JOIN tb_org tor ON tbs.HOST_DEPARTMENT=tor.O_ID
+UNION ALL
+SELECT tbr.RECEIVE_ID ID,tbr.NUMBER,tbr.TITLE,tbr.CREATE_TIME,tbr.ARCHIVAL_PERIOD,tbr.PAGES,tbr.RECEIVE_STATUS isEnd,tbr.POFILE,tor.O_ID,tor.O_NAME,tbrt.TASK_ID,tbrt.START_NODE_ID,tbrt.END_NODE_ID,tbrt.START_PERSON_ID,tbrt.END_PERSON_ID,tbrt.TASK_STATUS,tbrt.OPINION,tbrt.isBack,tbr.DEL_FLAG,4 'mark'
+FROM  tb_briefing_receive_task tbrt LEFT JOIN  tb_briefing_receive tbr ON tbr.RECEIVE_ID=tbrt.RECEIVE_ID
+LEFT JOIN tb_org tor ON tbr.COMPANY=tor.O_ID

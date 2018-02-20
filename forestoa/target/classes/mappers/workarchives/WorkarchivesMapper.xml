@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gxzn.forestoa.modules.workarchives.dao.WorkarchivesMapper">
+
+	<resultMap id="BaseMap" type="java.util.Map">
+		<result column="i" jdbcType="VARCHAR" property="i" javaType="java.lang.String"/>
+		<result column="ID" jdbcType="VARCHAR" property="ID" />
+		<result column="ARCHIVAL_PERIOD" jdbcType="VARCHAR" property="ARCHIVAL_PERIOD" />
+		<result column="TITLE" jdbcType="VARCHAR" property="TITLE" />
+		<result column="CREATE_TIME" jdbcType="VARCHAR" property="CREATE_TIME" />
+		<result column="POFILE" jdbcType="VARCHAR" property="POFILE" />
+		<result column="PAGES" jdbcType="VARCHAR" property="PAGES" />
+		<result column="mark" jdbcType="VARCHAR" property="mark" />
+		<result column="USER_NAME" jdbcType="VARCHAR" property="USER_NAME" />
+		<result column="USER_NUMBER" jdbcType="VARCHAR" property="USER_NUMBER" />
+
+	</resultMap>
+
+	<select id="workarchivesByPage" resultMap="BaseMap"
+		parameterType="java.util.Map">
+		SELECT
+		(@i:=@i+1+0) i,
+		dfv.ID,
+		dfv.ARCHIVAL_PERIOD,dfv.NUMBER,dfv.TITLE,
+		DATE_FORMAT(dfv.CREATE_TIME, '%Y-%m-%d')
+		AS
+		CREATE_TIME,dfv.POFILE,
+		dfv.PAGES,dfv.mark,tu.USER_NAME,tu.USER_NUMBER
+		FROM
+		(select @i:=0) AS
+		it,
+		(SELECT
+		MAX(END_NODE_ID) END_NODE_ID,ID,mark
+		FROM
+		doc_fb_view
+		WHERE
+		isEnd=1 AND DEL_FLAG=0
+		GROUP BY
+		ID,mark) tmp
+		LEFT JOIN doc_fb_view dfv ON
+		dfv.END_NODE_ID = tmp.END_NODE_ID AND dfv.ID=tmp.ID AND
+		dfv.mark=tmp.mark
+		LEFT JOIN tb_users tu ON dfv.END_PERSON_ID =
+		tu.USER_ID
+		WHERE 1=1
+		<if test="ARCHIVAL_PERIOD != ''">
+			AND dfv.ARCHIVAL_PERIOD=#{ARCHIVAL_PERIOD}
+		</if>
+		<if test="logmin != ''">
+			AND dfv.CREATE_TIME &gt;=#{logmin}
+		</if>
+		<if test="logmax != ''">
+			AND dfv.CREATE_TIME &lt;=#{logmax}
+		</if>
+	</select>
+</mapper>

@@ -1,0 +1,230 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.gxzn.forestoa.modules.notice.dao.UserNoticeMapper">
+	<resultMap id="BaseResultMap"
+		type="com.gxzn.forestoa.modules.notice.entity.UserNotice">
+		<id column="USERNOTICE_ID" jdbcType="BIGINT" property="usernoticeId" />
+		<result column="USER_ID" jdbcType="BIGINT" property="userId" />
+		<result column="NOTICE_ID" jdbcType="BIGINT" property="noticeId" />
+		<result column="STATUS" jdbcType="BIGINT" property="status" />
+		<result column="DEL_FLAG" jdbcType="VARCHAR" property="delFlag" />
+		<result column="REMARKS1" jdbcType="VARCHAR" property="remarks1" />
+		<result column="REMARKS2" jdbcType="VARCHAR" property="remarks2" />
+		<result column="REMARKS3" jdbcType="VARCHAR" property="remarks3" />
+		<association javaType="Notice" property="notice" column="NOTICE_ID">
+			<result column="NOTICE_TITLE" jdbcType="VARCHAR" property="noticeTitle" />
+			<result column="NOTICE_CONTENT" jdbcType="VARCHAR" property="noticeContent" />
+			<result column="NOTICE_TYPE" jdbcType="VARCHAR" property="noticeType" />
+			<result column="NOTICE_CREATETIME" jdbcType="TIMESTAMP"
+				property="noticeCreatetime" />
+			<result column="NOTICE_CREATER" jdbcType="BIGINT" property="noticeCreater" />
+			<result column="NOTICE_RECEIVER" jdbcType="VARCHAR" property="noticeReceiver" />
+			<result column="FORUSERTYPE" jdbcType="INTEGER" property="forusertype" />
+			<result column="FORONLINEUSERS" jdbcType="INTEGER" property="foronlineusers" />
+			<result column="NEEDREADED" jdbcType="INTEGER" property="needreaded" />
+			<result column="DEL_FLAG" jdbcType="VARCHAR" property="delFlag" />
+			<result column="REMARKS2" jdbcType="VARCHAR" property="remarks2" />
+			<result column="REMARKS3" jdbcType="VARCHAR" property="remarks3" />
+		</association>
+		<association javaType="Users" property="user" column="USER_ID">
+			<id column="USER_ID" jdbcType="BIGINT" property="userId" />
+			<result column="USER_NUMBER" jdbcType="VARCHAR" property="userNumber" />
+			<result column="USER_NAME" jdbcType="VARCHAR" property="userName" />
+			<result column="SEX" jdbcType="VARCHAR" property="sex" />
+			<result column="PHONE" jdbcType="VARCHAR" property="phone" />
+			<result column="EMAIL" jdbcType="VARCHAR" property="email" />
+			<result column="LOGIN_NAME" jdbcType="VARCHAR" property="loginName" />
+			<result column="LOGIN_PASSWORD" jdbcType="VARCHAR" property="loginPassword" />
+			<result column="CREAT_TIME" jdbcType="TIMESTAMP" property="creatTime" />
+			<result column="USER_STATUS" jdbcType="VARCHAR" property="userStatus" />
+			<result column="DEL_FLAG" jdbcType="VARCHAR" property="delFlag" />
+			<result column="ORG_ID" jdbcType="BIGINT" property="orgId" />
+			<result column="ORG_STATUS" jdbcType="VARCHAR" property="orgStatus" />
+			<result column="USER_TYPE" jdbcType="VARCHAR" property="userType" />
+			<result column="ORG_ID1" jdbcType="BIGINT" property="orgId1" />
+			<result column="ROLE_ID1" jdbcType="BIGINT" property="roleId1" />
+			<result column="ORG_ID2" jdbcType="BIGINT" property="orgId2" />
+			<result column="ROLE_ID2" jdbcType="BIGINT" property="roleId2" />
+			<result column="ORG_ID3" jdbcType="BIGINT" property="orgId3" />
+			<result column="ROLE_ID3" jdbcType="BIGINT" property="roleId3" />
+			<result column="ORG_ID4" jdbcType="BIGINT" property="orgId4" />
+			<result column="ROLE_ID4" jdbcType="BIGINT" property="roleId4" />
+			<result column="ORG_ID5" jdbcType="BIGINT" property="orgId5" />
+			<result column="ROLE_ID5" jdbcType="BIGINT" property="roleId5" />
+			<result column="REMARKS" jdbcType="VARCHAR" property="remarks" />
+		</association>
+	</resultMap>
+
+	<sql id="usernotice">
+		USERNOTICE_ID, USER_ID, NOTICE_ID, STATUS, DEL_FLAG, REMARKS1, REMARKS2, REMARKS3
+	</sql>
+	<sql id="notice">
+		NOTICE_TITLE, NOTICE_CONTENT, NOTICE_TYPE, NOTICE_CREATETIME, NOTICE_CREATER,
+		NOTICE_RECEIVER, FORUSERTYPE, FORONLINEUSERS, NEEDREADED
+	</sql>
+	<!--查询所有个人通知通告 -->
+	<select id="selectAll" resultMap="BaseResultMap">
+		select
+		*
+		FROM
+		tb_user_notice tun
+		LEFT JOIN
+		tb_notice tn ON tun.NOTICE_ID= tn.NOTICE_ID
+		LEFT JOIN
+		tb_users tu ON tun.USER_ID= tu.USER_ID
+		WHERE
+		1=1
+		<!-- <if test="userId != 'admin'">
+			and tun.USER_ID=#{userId,jdbcType=BIGINT}
+		</if> -->
+		and tun.USER_ID=#{userId,jdbcType=BIGINT}
+		<if test="noticeTitle != ''">
+		 and tn.NOTICE_TITLE LIKE CONCAT('%',#{noticeTitle,jdbcType=VARCHAR},'%')
+		</if>
+		ORDER BY USERNOTICE_ID DESC
+		<!-- <if test="noticeTitle != ''">
+		 and tn.NOTICE_TITLE LIKE '%#{noticeTitle,jdbcType=VARCHAR}%'
+		</if> -->
+	</select>
+
+	<!--根据通知Id查询所有个人通知通告 -->
+	<select id="selectAllByNId" resultMap="BaseResultMap">
+		select
+		*
+		FROM
+		tb_user_notice tun
+		LEFT JOIN
+		tb_notice tn ON tun.NOTICE_ID= tn.NOTICE_ID
+		LEFT JOIN
+		tb_users tu ON tun.USER_ID= tu.USER_ID
+		WHERE
+		tun.NOTICE_ID=#{noticeId,jdbcType=BIGINT}
+	</select>
+
+
+	<!-- 根据个人通知通告Id查询单个个人通知通告 -->
+	<select id="selectByKey" resultMap="BaseResultMap"
+		parameterType="java.lang.Long">
+		select
+		<include refid="notice"></include>
+		from
+		tb_notice
+		where
+		USERNOTICE_ID=#{noticeId,jdbcType=BIGINT}
+	</select>
+	<!-- 根据个人通知通告Id进行物理删除 -->
+	<delete id="delete" parameterType="java.lang.Long">
+		delete
+		from tb_notice
+		where
+		NOTICE_ID=#{noticeId,jdbcType=BIGINT}
+	</delete>
+
+	<!--根据个人通知通告Id进行逻辑删除 -->
+	<update id="delete2" parameterType="java.lang.Long">
+		update
+		tb_notice
+		set
+		DEL_FLAG = "1"
+		where
+		NOTICE_ID=#{noticeId,jdbcType=BIGINT}
+	</update>
+
+	<!-- 个人通知通告编辑 -->
+	<update id="update" parameterType="com.gxzn.forestoa.modules.notice.entity.UserNotice">
+		update tb_user_notice
+		<set>
+			<if test="userId != null">
+				USER_ID = #{userId,jdbcType=BIGINT},
+			</if>
+			<if test="noticeId != null">
+				NOTICE_ID = #{noticeId,jdbcType=BIGINT},
+			</if>
+			<if test="status != null">
+				STATUS = #{status,jdbcType=BIGINT},
+			</if>
+			<if test="delFlag != null">
+				DEL_FLAG = #{delFlag,jdbcType=VARCHAR},
+			</if>
+			<if test="remarks1 != null">
+				REMARKS1 = #{remarks1,jdbcType=VARCHAR},
+			</if>
+			<if test="remarks2 != null">
+				REMARKS2 = #{remarks2,jdbcType=VARCHAR},
+			</if>
+			<if test="remarks3 != null">
+				REMARKS3 = #{remarks3,jdbcType=VARCHAR},
+			</if>
+		</set>
+		where NOTICE_ID = #{noticeId,jdbcType=BIGINT} and USER_ID =
+		#{userId,jdbcType=BIGINT}
+	</update>
+	<!--个人通知通告的添加 -->
+	<insert id="insert" parameterType="com.gxzn.forestoa.modules.notice.entity.UserNotice">
+		insert into tb_user_notice
+		<trim prefix="(" suffix=")" suffixOverrides=",">
+			<if test="usernoticeId != null">
+				USERNOTICE_ID,
+			</if>
+			<if test="userId != null">
+				USER_ID,
+			</if>
+			<if test="noticeId != null">
+				NOTICE_ID,
+			</if>
+			<if test="status != null">
+				STATUS,
+			</if>
+			<if test="delFlag != null">
+				DEL_FLAG,
+			</if>
+			<if test="remarks1 != null">
+				REMARKS1,
+			</if>
+			<if test="remarks2 != null">
+				REMARKS2,
+			</if>
+			<if test="remarks3 != null">
+				REMARKS3,
+			</if>
+		</trim>
+		<trim prefix="values (" suffix=")" suffixOverrides=",">
+			<if test="usernoticeId != null">
+				#{usernoticeId,jdbcType=BIGINT},
+			</if>
+			<if test="userId != null">
+				#{userId,jdbcType=BIGINT},
+			</if>
+			<if test="noticeId != null">
+				#{noticeId,jdbcType=BIGINT},
+			</if>
+			<if test="status != null">
+				#{status,jdbcType=BIGINT},
+			</if>
+			<if test="delFlag != null">
+				#{delFlag,jdbcType=VARCHAR},
+			</if>
+			<if test="remarks1 != null">
+				#{remarks1,jdbcType=VARCHAR},
+			</if>
+			<if test="remarks2 != null">
+				#{remarks2,jdbcType=VARCHAR},
+			</if>
+			<if test="remarks3 != null">
+				#{remarks3,jdbcType=VARCHAR},
+			</if>
+		</trim>
+	</insert>
+
+	<!--批量添加 -->
+	<insert id="insertList" parameterType="java.util.List">
+		Insert into tb_user_notice
+		(USER_ID,NOTICE_ID,REMARKS1,REMARKS2,REMARKS3) values
+		<!-- 注意foreach的语法,集合直接写list字符串，用item表示当前遍历的对象，结果集合通过使用逗号分隔使用separator属性 -->
+		<foreach collection="list" item="item" separator=",">
+			(#{item.userId},#{item.noticeId},#{item.remarks1},#{item.remarks2},#{item.remarks3})
+		</foreach>
+	</insert>
+
+
+</mapper>
